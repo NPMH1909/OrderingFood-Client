@@ -1,0 +1,10 @@
+/* styles.css hoặc file CSS tương ứng */
+.fixed-order {
+    position: sticky; /* Giữ vị trí khi cuộn */
+    top: 20px; /* Khoảng cách từ đầu trang */
+    z-index: 10; /* Đảm bảo nó không bị che khuất */
+    background-color: white; /* Đặt màu nền để dễ đọc */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng cho phần mô tả */
+    padding: 16px; /* Thêm khoảng cách bên trong */
+    border-radius: 8px; /* Làm mềm các góc */
+}
