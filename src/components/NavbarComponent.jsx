@@ -67,7 +67,7 @@ const NavbarComponent = () => {
                     </List>
                 </div>
                 <div className="hidden gap-2 lg:flex">
-                    <Button variant="text" size="sm" color="blue-gray">
+                    <Button variant="text" size="sm" color="blue-gray" onClick={()=>{navigate('/cart')}}>
                         <ShoppingCartIcon className="w-5 h-5 mr-2" />
                     </Button>
                     <Button variant="gradient" size="sm">

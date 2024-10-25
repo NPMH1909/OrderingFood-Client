@@ -10,32 +10,34 @@ import React from 'react'
 
 const CardComponent = ({ name, image, description, price }) => {
   return (
-    <Card className="w-96">
-      <CardHeader shadow={false} floated={false} className="h-96">
+    <Card className="mx-auto flex flex-col h-full">
+      <CardHeader shadow={false} floated={false} className="h-60">
         <img
           src={image}
           alt="card-image"
           className="h-full w-full object-cover"
         />
       </CardHeader>
-      <CardBody>
+      <CardBody className="flex-grow">
+        {/* Sử dụng flex để giữ name và price cùng dòng */}
         <div className="mb-2 flex items-center justify-between">
-          <Typography color="blue-gray" className="font-medium">
+          {/* Giới hạn chiều rộng của tên để không bị tràn và gây đẩy giá xuống */}
+          <Typography color="blue-gray" className="font-medium truncate w-2/3">
             {name}
           </Typography>
-          <Typography color="blue-gray" className="font-medium">
-            {price}
+          <Typography color="blue-gray" className="font-medium w-1/3 text-right">
+            ${price}
           </Typography>
         </div>
         <Typography
           variant="small"
           color="gray"
-          className="font-normal opacity-75"
+          className="font-normal opacity-75 line-clamp-3"
         >
           {description}
         </Typography>
       </CardBody>
-      <CardFooter className="pt-0">
+      <CardFooter className="pt-0 mt-auto">
         <Button
           ripple={false}
           fullWidth={true}

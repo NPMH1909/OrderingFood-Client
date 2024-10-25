@@ -47,21 +47,20 @@ const ProductPage = () => {
                 </div>
             </div>
 
-            <div className='w-[81%] mx-auto flex justify-center '>
-                <div className={`flex flex-wrap justify-start`}>
-                    {menuItems.map(item => (
-                        <div 
-                            key={item.id} >
-                            <CardComponent
-                                name={item.name}
-                                image={item.image.url}
-                                price={item.price}
-                                description={item.description}
-                            />
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <div className="w-[90%] mx-auto">
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            {menuItems?.map((item) => (
+              <div key={item.id} className="w-[80%] sm:w-[60%] md:w-full lg:w-full mx-auto">
+                <CardComponent
+                  name={item.name}
+                  image={item.image.url}
+                  price={item.price}
+                  description={item.description}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
             <div className='flex justify-center m-4'>
                 <PaginationComponent
                     currentPage={currentPage}
