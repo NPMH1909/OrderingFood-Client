@@ -30,7 +30,6 @@ const HomePage = () => {
 
   return (
     <div>
-      <NavbarComponent />
       <div className="h-[80%] sm:h-[60%] md:h-full lg:w-full mx-auto">
         <BannerComponent />
       </div>
@@ -79,7 +78,6 @@ const HomePage = () => {
         </div>
       </div>
 
-      <FooterComponent />
     </div>
   );
 };

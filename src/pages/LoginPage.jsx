@@ -19,10 +19,11 @@ const LoginPage = () => {
             localStorage.setItem("token", result.data);
 
             const userCart = JSON.parse(localStorage.getItem(`cart_${username}`)) || [];
-            dispatch(setCart(userCart));
             dispatch(setUserInfo({ username })); // Dispatch setUserInfo after successful login
-            
-            navigate('/home');
+
+            navigate('/');
+            window.location.reload(); // Thực hiện tải lại trang
+
         } catch (err) {
             console.error("Login failed:", err);
         }

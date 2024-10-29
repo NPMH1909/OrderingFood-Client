@@ -34,7 +34,6 @@ const ProductPage = () => {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <NavbarComponent />
             <hr className="border border-black" />
             <div className="flex-grow">
                 <div
@@ -80,7 +79,6 @@ const ProductPage = () => {
                     </div>
                 )}
             </div>
-            <FooterComponent />
         </div>
     );
 }

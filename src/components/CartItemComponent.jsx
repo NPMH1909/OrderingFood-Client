@@ -1,42 +1,48 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { updateQuantity, removeFromCart } from '../slices/cartSlice';
 import { TrashIcon } from '@heroicons/react/24/outline';
+import { useAddItemToCartMutation, useRemoveItemFromCartMutation } from '../apis/cartApi';
 
-export const CartItemComponent = ({ item, onSelect }) => {
-  const dispatch = useDispatch();
-  const [quantity, setQuantity] = useState(item.quantity || 1);
-  const [isSelected, setIsSelected] = useState(false);
+const CartItemComponent = ({ item, onQuantityChange, onCheckChange }) => {
+  const [quantity, setQuantity] = useState(item.quantity);
+  const [isChecked, setIsChecked] = useState(false);
+  const [addItemToCart] = useAddItemToCartMutation();
+  const [removeItemFromCart] = useRemoveItemFromCartMutation();
 
-  const handleIncrease = () => {
-    setQuantity(prevQuantity => prevQuantity + 1);
-    dispatch(updateQuantity({ id: item.id, quantity: quantity + 1 }));
-  };
-
-  const handleDecrease = () => {
+  const handleDecrease = async () => {
     if (quantity > 1) {
-      setQuantity(prevQuantity => prevQuantity - 1);
-      dispatch(updateQuantity({ id: item.id, quantity: quantity - 1 }));
+      const newQuantity = quantity - 1;
+      setQuantity(newQuantity);
+      await addItemToCart({ productId: item.item, quantity: -1 }).unwrap();
+      onQuantityChange(item, newQuantity); // Gửi số lượng mới lên CartPage
     }
   };
 
-  const handleRemove = () => {
-    dispatch(removeFromCart(item.id));
+  const handleIncrease = async () => {
+    const newQuantity = quantity + 1;
+    setQuantity(newQuantity);
+    await addItemToCart({ productId: item.item, quantity: 1 }).unwrap();
+    onQuantityChange(item, newQuantity); // Gửi số lượng mới lên CartPage
   };
 
-  const handleSelect = (e) => {
-    setIsSelected(e.target.checked);
-    onSelect(item.id, e.target.checked);
+  const handleRemove = async () => {
+    await removeItemFromCart(item.item).unwrap();
+    onQuantityChange(item, 0); // Cập nhật khi xóa sản phẩm
+  };
+
+  const handleCheck = (e) => {
+    const checked = e.target.checked;
+    setIsChecked(checked);
+    onCheckChange(item, checked);
   };
 
   return (
     <div className="col-span-2 bg-white p-4 shadow-md rounded">
       <div className="flex items-center space-x-4">
-        <input type="checkbox" checked={isSelected} onChange={handleSelect} />
-        <img src={item.image} alt="product" className="w-24 h-24 object-cover rounded" />
+        <input type="checkbox" checked={isChecked} onChange={handleCheck} />
+        <img src={item.imageUrl} alt="product" className="w-24 h-24 object-cover rounded" />
         <div className="flex-1">
           <h3 className="text-lg font-semibold">{item.name}</h3>
-          <p className="text-sm text-gray-600">{item.price.toLocaleString('vi-VN')}đ</p>
+          <h3 className="text-lg font-semibold">{item.price}</h3>
           <p className="text-sm text-green-600">In Stock</p>
         </div>
         <div className="flex-1 text-right">
@@ -54,3 +60,5 @@ export const CartItemComponent = ({ item, onSelect }) => {
     </div>
   );
 };
+
+export default CartItemComponent;
