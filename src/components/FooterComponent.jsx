@@ -3,17 +3,17 @@ import React from 'react'
 
 const FooterComponent = () => {
   return (
-    <footer className="flex w-full flex-row flex-wrap items-center justify-center gap-y-6 gap-x-12 border-t border-blue-gray-50 py-6 text-center md:justify-between">
-      <Typography color="blue-gray" className="font-normal">
+    <footer className="bg-black flex w-full flex-row flex-wrap items-center justify-center gap-y-6 gap-x-12 border-t border-blue-gray-50 py-6 text-center md:justify-between">
+      <Typography color="blue-gray" className="font-normal text-white ml-4">
         &copy; 2023 Material Tailwind
       </Typography>
-      <ul className="flex flex-wrap items-center gap-y-2 gap-x-8">
+      <ul className="flex flex-wrap items-center gap-y-2 gap-x-8 mr-4">
         <li>
           <Typography
             as="a"
             href="#"
             color="blue-gray"
-            className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500"
+            className="font-normal transition-colors  text-white hover:text-blue-500 focus:text-blue-500"
           >
             About Us
           </Typography>
@@ -23,7 +23,7 @@ const FooterComponent = () => {
             as="a"
             href="#"
             color="blue-gray"
-            className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500"
+            className="font-normal transition-colors  text-white  hover:text-blue-500 focus:text-blue-500"
           >
             License
           </Typography>
@@ -33,7 +33,7 @@ const FooterComponent = () => {
             as="a"
             href="#"
             color="blue-gray"
-            className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500"
+            className="font-normal transition-colors  text-white hover:text-blue-500 focus:text-blue-500"
           >
             Contribute
           </Typography>
@@ -43,7 +43,7 @@ const FooterComponent = () => {
             as="a"
             href="#"
             color="blue-gray"
-            className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500"
+            className="font-normal transition-colors  text-white hover:text-blue-500 focus:text-blue-500"
           >
             Contact Us
           </Typography>

@@ -1,112 +1,95 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import NavbarComponent from '../components/NavbarComponent';
+import { CartItemComponent } from '../components/CartItemComponent';
+import FooterComponent from '../components/FooterComponent';
+import { useNavigate } from 'react-router-dom';
 
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Apple Juice',
-      volume: '250ml',
-      price: 2.99,
-      image: 'https://i.pinimg.com/474x/89/d7/4c/89d74c79efa930991ccfd27555268e72.jpg', // URL ảnh
-      quantity: 2,
-    },
-    {
-      id: 2,
-      name: 'Grapes Juice',
-      volume: '250ml',
-      price: 3.19,
-      image: 'https://i.pinimg.com/564x/a2/73/a8/a273a8e3d61d4bab26573368f7181b9c.jpg', // URL ảnh
-      quantity: 1,
-    },
-  ]);
+  const cartItems = useSelector((state) => state.cart.items);
+  const [selectedItems, setSelectedItems] = useState({});
+  const [showModal, setShowModal] = useState(false); // State để quản lý modal
+  const navigate = useNavigate();
+  
 
-  const increaseQuantity = (id) => {
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
+  const handleSelectItem = (id, isSelected) => {
+    setSelectedItems((prevSelected) => ({
+      ...prevSelected,
+      [id]: isSelected,
+    }));
   };
 
-  const decreaseQuantity = (id) => {
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
+  const selectedCartItems = cartItems.filter(item => selectedItems[item.id]);
+  const totalAmount = selectedCartItems.reduce((total, item) => total + item.price * (item.quantity || 1), 0);
+
+  const handleCheckout = () => {
+    // Kiểm tra xem có item nào được chọn hay không
+    if (selectedCartItems.length === 0) {
+      setShowModal(true); // Hiển thị modal nếu chưa chọn item nào
+    } else {
+      // Chuyển hướng tới CheckoutPage với state chứa danh sách item đã chọn và tổng tiền
+      navigate('/checkout', {
+        state: { selectedCartItems, totalAmount }
+      });
+    }
   };
 
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+  const handleCloseModal = () => {
+    setShowModal(false); // Đóng modal
   };
-
-  const totalAmount = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
 
   return (
-    <>
-    <NavbarComponent/>
-    <hr className="border border-black" />
+    <div>
+      <div className="min-h-screen bg-gray-100">
+        <NavbarComponent />
+        <hr className="border border-black" />
+        <main className="container mx-auto my-8">
+          <h2 className="text-2xl font-bold mb-6">My Cart</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="col-span-2">
+              {cartItems.length > 0 ? (
+                cartItems.map((item, index) => (
+                  <CartItemComponent
+                    key={index}
+                    item={item}
+                    onSelect={handleSelectItem}
+                  />
+                ))
+              ) : (
+                <p>Your cart is empty.</p>
+              )}
+            </div>
+            <div className="bg-white p-4 shadow-md rounded sticky top-0 h-fit">
+              <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+              <div className="text-sm text-gray-700">
+                <p className="flex justify-between">Shipping cost <span>TBD</span></p>
+                <p className="flex justify-between">Discount <span>-$0</span></p>
+                <p className="flex justify-between">Tax <span>TBD</span></p>
+                <hr className="my-2" />
+                <p className="flex justify-between font-semibold">Estimated Total <span>{totalAmount.toLocaleString('vi-VN')}đ</span></p>
+              </div>
+              <button className="w-full bg-black text-white py-2 mt-4 rounded" onClick={handleCheckout}>Checkout</button>
+              <p className="text-sm text-center text-red-500 mt-2">You're $10.01 away from free shipping!</p>
+            </div>
+          </div>
+        </main>
+      </div>
+      <FooterComponent />
 
-    <h2 className="text-2xl font-semibold mb-4">Shopping Cart</h2>
-    <div className="p-4 bg-blue-50 rounded-lg w-1/2 ml-8">
-      
-      {cartItems.map((item) => (
-        <div key={item.id} className="flex items-center justify-between mb-4">
-          <img src={item.image} alt={item.name} className="w-16 h-16 object-cover" />
-          <div className="flex-1 ml-4">
-            <h3 className="text-lg font-semibold">{item.name}</h3>
-            <p className="text-gray-500">{item.volume}</p>
-            <span className="text-green-500 text-sm">In Stock</span>
-          </div>
-          <div className="flex items-center">
-            <button
-              onClick={() => decreaseQuantity(item.id)}
-              className="text-xl font-bold px-2"
-            >
-              -
-            </button>
-            <span className="px-3">{item.quantity}</span>
-            <button
-              onClick={() => increaseQuantity(item.id)}
-              className="text-xl font-bold px-2"
-            >
-              +
-            </button>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-lg font-bold">${item.price.toFixed(2)}</span>
-            <div className="flex text-sm">
-              <button className="text-blue-500 mr-2">Save for later</button>
-              <button
-                className="text-red-500"
-                onClick={() => removeItem(item.id)}
-              >
-                Remove
-              </button>
+      {/* Modal thông báo */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
+          <div className="bg-white p-4 rounded shadow-lg">
+            <h3 className="text-lg font-semibold">Thông báo</h3>
+            <p className="mt-2">Bạn chưa chọn item nào. Vui lòng chọn ít nhất một item để tiếp tục.</p>
+            <div className="mt-4 flex justify-end">
+              <button className="bg-blue-500 text-white py-1 px-4 rounded" onClick={handleCloseModal}>Đóng</button>
             </div>
           </div>
         </div>
-      ))}
-
-      <div className="border-t pt-4">
-        <div className="flex justify-between text-lg font-semibold">
-          <span>Sub-Total</span>
-          <span>${totalAmount.toFixed(2)}</span>
-        </div>
-        {/* <button className="bg-blue-500 text-white py-2 px-4 rounded-lg mt-4 w-full">
-          Checkout
-        </button> */}
-      </div>
+      )}
     </div>
-    </>
   );
- 
 };
 
 export default CartPage;
