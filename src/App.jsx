@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 import HomePage from './pages/HomePage'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import ProductPage from './pages/ProductPage'
@@ -37,5 +37,17 @@ function App() {
     </BrowserRouter>
   )
 }
+// import ContactForm from "./client/pages/user/contactForm.js";
+// import UserInfoForm from "./client/pages/user/UserInfoForm.js";
+// import DishManageForm from "./Tham/pages/admin/DishManageForm.js";
+// const App = () => {
+//   return (
+//     <div>
+//       {/* header */}
+//       <DishManageForm />
+//       {/* footer */}
+//     </div>
+//   );
+// };
 
-export default App
+export default App;

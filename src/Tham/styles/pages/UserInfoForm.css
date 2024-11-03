@@ -1,0 +1,37 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.user-info-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-image: url('../../assets/images/wallpaper.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.user-info-form {
+  flex: 1; /* Chiếm 50% không gian */
+  padding: 20px; /* Thêm khoảng cách bên trong */
+}
+
+.outer-card {
+  flex: 1; /* Chiếm 50% không gian */
+  display: flex;
+   border-radius: 10px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  
+}
+.user-info-form {
+  margin-top: 20px; 
+  text-align: center; 
+}
+
+.dish-image { 
+  width: 600px; 
+  border-radius: 8px; 
+}
+
