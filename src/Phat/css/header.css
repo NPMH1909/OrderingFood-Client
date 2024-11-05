@@ -1,0 +1,99 @@
+.header {
+    background-color: #B43F3F;
+    color: white;
+    padding: 10px;
+  }
+  
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Đưa logo và các mục điều hướng ra xa nhau */
+    background-color: #B43F3F;
+    padding: 10px 20px;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo img {
+    height: 50px;
+    margin-right: 0px;
+  }
+  
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 5px;
+    border-radius: 5px;
+    width: 40%;
+    margin-left: 0%;
+  }
+  
+  .search-bar input {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: black;
+    padding: 5px;
+  }
+  
+  .search-bar input::placeholder {
+    color: black;
+  }
+
+  .search-bar button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-bar button img {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .search-bar input,
+  .search-bar button {
+    border-bottom: 1px solid white;
+  }
+  
+  .search-bar button i {
+    transition: color 0.3s ease;
+  }
+  
+  .search-bar button:hover i {
+    color: #ccc;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .nav-links a {
+    margin: 0 20px;
+    text-decoration: none;
+    color: white;
+    font-size:20px;
+  }
+
+  .nav-links button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-links button img {
+    width: 45px;
+    height: 45px;
+  }
