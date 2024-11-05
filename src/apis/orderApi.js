@@ -29,8 +29,13 @@ export const orderApi = createApi({
                 body: paymentData, // Dữ liệu thanh toán
             }),
         }),
+        getAllOrderByUser: builder.query({
+            query: ({page, limit}) => ({
+                url: '/user/getall',
+                params: {page, limit}
+            })
+        }),
     }),
 });
 
-// Export hooks auto-generated bởi RTK Query
-export const { useCreateOrderMutation, useCreatePaymentOrderMutation } = orderApi;
+export const { useCreateOrderMutation, useCreatePaymentOrderMutation, useGetAllOrderByUserQuery } = orderApi;

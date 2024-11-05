@@ -10,6 +10,12 @@ import CheckoutPage from './pages/CheckOutPage'
 import CancelOrderPage from './pages/CancelOrderPage'
 import SuccesOrderPage from './pages/SuccesOrderPage'
 import Layout from './layouts/Layout'
+import OrderHistory from "./pages/OrderHistoryPage";
+import ContactPage from "./pages/ContactPage";
+import ProfilePage from "./pages/ProfilePage";
+import DishManageForm from "./components/DishManageForm";
+import AdminPage from "./pages/AdminPage";
+import AdminLoginPage from "./pages/AdminLoginPage";
 function App() {
   const dispatch = useDispatch();
 
@@ -31,8 +37,14 @@ function App() {
           <Route path="checkout" element={<CheckoutPage />} />
           <Route path="checkout-cancel" element={<CancelOrderPage />} />
           <Route path="checkout-success" element={<SuccesOrderPage />} />
+          <Route path="order/history" element={<OrderHistory />} />
+          <Route path="contact" element={<ContactPage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
+        <Route path="dashboard" element={<AdminPage />} />
         <Route path="login" element={<LoginPage />} />
+        <Route path="loginAD" element={<AdminLoginPage />} />
+
       </Routes>
     </BrowserRouter>
   )

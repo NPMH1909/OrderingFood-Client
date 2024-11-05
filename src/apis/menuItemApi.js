@@ -12,6 +12,58 @@ export const menuItemApi = createApi({
                 params: { page, limit, searchTerm },
             }),
         }),
+        addItem: builder.mutation({
+            query: ({ menuItemData }) => {
+                const formData = new FormData();
+                formData.append("name", menuItemData.name);
+                formData.append("description", menuItemData.description);
+                formData.append("price", menuItemData.price);
+                formData.append("quantity", menuItemData.quantity);
+                formData.append("category", menuItemData.category);
+                if (menuItemData.image) {
+                    formData.append("image", menuItemData.image); 
+                }
+                return {
+                    url: "/create",
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    body: formData,
+                };
+            },
+        }),
+        updateItem: builder.mutation({
+            query: ({id, menuItemData }) => {
+                const formData = new FormData();
+                formData.append("name", menuItemData.name);
+                formData.append("description", menuItemData.description);
+                formData.append("price", menuItemData.price);
+                formData.append("quantity", menuItemData.quantity);
+                formData.append("category", menuItemData.category);
+                if (menuItemData.image) {
+                    formData.append("image", menuItemData.image); 
+                }
+                return {
+                    url: `/update/${id}`,
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    body: formData,
+                };
+            },
+        }),
+        deleteItem: builder.mutation({
+            query: (id) => ({
+                    url: `/delete-item/${id}`,
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    body: {id}
+            }),
+        }),
         getCategory: builder.query({
             query: () => '/get-category'
         }),
@@ -30,4 +82,13 @@ export const menuItemApi = createApi({
     }),
 });
 
-export const { useGetMenuQuery, useGetCategoryQuery, useGetItemByCategoryQuery, useGetTopSellerQuery, useGetNewProductQuery  } = menuItemApi;
+export const { 
+    useGetMenuQuery,
+    useGetCategoryQuery,
+    useGetItemByCategoryQuery,
+    useGetTopSellerQuery,
+    useGetNewProductQuery,
+    useAddItemMutation,
+    useUpdateItemMutation,
+    useDeleteItemMutation,
+} = menuItemApi;

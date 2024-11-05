@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoginMutation } from '../apis/userApi';
 import { useDispatch } from 'react-redux';
-import { setCart } from '../slices/cartSlice';
-import { setUserInfo } from '../slices/userSlice'; // Import setUserInfo
+
 
 const LoginPage = () => {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [login, { isLoading, error }] = useLoginMutation();
@@ -15,12 +13,7 @@ const LoginPage = () => {
     const loginHandle = async () => {
         try {
             const result = await login({ username, password }).unwrap();
-            localStorage.setItem("user", username);
             localStorage.setItem("token", result.data);
-
-            const userCart = JSON.parse(localStorage.getItem(`cart_${username}`)) || [];
-            dispatch(setUserInfo({ username })); // Dispatch setUserInfo after successful login
-
             navigate('/');
             window.location.reload(); // Thực hiện tải lại trang
 

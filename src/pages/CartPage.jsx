@@ -43,7 +43,7 @@ const CartPage = () => {
 console.log('item', selectedItems)
   return (
     <div className="min-h-screen bg-gray-100">
-      <main className="container mx-auto my-8">
+      <main className="w-[80%] mx-auto my-8">
         <h2 className="text-2xl font-bold mb-6">My Cart</h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="col-span-2">
@@ -60,7 +60,7 @@ console.log('item', selectedItems)
               <p>Your cart is empty.</p>
             )}
           </div>
-          <div className="bg-white p-4 shadow-md rounded sticky top-0 h-fit">
+          <div className="bg-white p-4 shadow-md rounded sticky top-20 h-fit">
             <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
             <div className="text-sm text-gray-700">
               <p className="flex justify-between">Shipping cost <span>TBD</span></p>

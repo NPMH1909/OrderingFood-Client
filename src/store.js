@@ -6,6 +6,7 @@ import { userApi } from './apis/userApi';
 import userReducer from './slices/userSlice'
 import { orderApi } from './apis/orderApi';
 import { cartApi } from './apis/cartApi';
+import searchReducer from './slices/searchSlice'
 const persistedUserInfo = JSON.parse(localStorage.getItem("userData"));
 
 // const username = localStorage.getItem("user");
@@ -27,7 +28,8 @@ export const store = configureStore({
     [orderApi.reducerPath]: orderApi.reducer,
     [cartApi.reducerPath]: cartApi.reducer,
     cart: cartReducer,
-    user: userReducer
+    user: userReducer,
+    search: searchReducer,
   },
   preloadedState,
   middleware: (getDefaultMiddleware) =>

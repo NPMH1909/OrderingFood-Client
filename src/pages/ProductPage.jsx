@@ -7,10 +7,11 @@ import CardComponent from '../components/CardComponent';
 import PaginationComponent from '../components/PaginationComponent';
 import FooterComponent from '../components/FooterComponent';
 import NotFoundProduct from '../components/NotFoundProduct';
+import { useSelector } from 'react-redux';
 
 const ProductPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [searchTerm, setSearchTerm] = useState('');
+    const searchTerm = useSelector((state) => state.search.term);
     const [category, setCategory] = useState('all');
     const [cartItems, setCartItems] = useState([]); // State cho giỏ hàng
 
@@ -19,12 +20,8 @@ const ProductPage = () => {
     }, [searchTerm, category]);
 
     const { data, error, isLoading } = category === 'all'
-        ? useGetMenuQuery({ searchTerm, page: currentPage, limit: 12 })
+        ? useGetMenuQuery({ searchTerm, page: currentPage, limit: 16 })
         : useGetItemByCategoryQuery({ category, searchTerm, page: currentPage, limit: 8 });
-
-    const addToCart = (item) => {
-        setCartItems((prevItems) => [...prevItems, item]); // Thêm item vào giỏ hàng
-    };
 
     if (isLoading) return <p>Loading...</p>;
     if (error) return <p>Error: {error.message}</p>;
@@ -43,7 +40,7 @@ const ProductPage = () => {
                 >
                     <div className="flex flex-wrap items-center justify-end gap-y-4 gap-4 text-black">
                         <SelectBoxComponent setCategory={setCategory} />
-                        <SearchComponent setSearchTerm={setSearchTerm} />
+                        {/* <SearchComponent setSearchTerm={searchTerm} /> */}
                     </div>
                 </div>
 

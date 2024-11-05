@@ -18,13 +18,13 @@ const SearchComponent = ({ setSearchTerm }) => {
                 containerProps={{
                     className: "min-w-[288px]",
                 }}
-                onChange={(e) => setInputValue(e.target.value)} // Cập nhật giá trị input
+                onChange={(e) => setInputValue(e.target.value)} 
             />
             <Button
                 size="sm"
                 color="white"
-                className="!absolute right-1 top-1 rounded"
-                onClick={handleSearch} // Gọi hàm tìm kiếm khi nhấn
+                className="!absolute right-1 top-1 rounded ml-2"
+                onClick={handleSearch} 
             >
                 Search
             </Button>
