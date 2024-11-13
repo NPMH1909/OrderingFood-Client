@@ -4,11 +4,10 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import DishCard from './DishCard';
-import { useAddItemMutation, useDeleteItemMutation, useGetItemByCategoryQuery, useGetMenuQuery, useUpdateItemMutation } from '../apis/menuItemApi';
-import SelectBoxComponent from './SelectBoxComponent';
-import SearchComponent from './SearchComponent';
-import PaginationComponent from './PaginationComponent';
-import { useSelector } from 'react-redux';
+import { useAddItemMutation, useDeleteItemMutation, useGetItemByCategoryQuery, useGetMenuQuery, useUpdateItemMutation } from '../../apis/menuItemApi';
+import SelectBoxComponent from '../SelectBoxComponent';
+import SearchComponent from '../SearchComponent';
+import PaginationComponent from '../PaginationComponent';
 
 const categories = [
   "Đồ ăn Châu Âu",
@@ -20,7 +19,7 @@ const categories = [
 const Menu = () => {
   const [currentPage, setCurrentPage] = useState(1);
   // const searchTerm = useSelector((state) => state.search.term);
-  const [searchTerm, setSearchTerm] = useState('') 
+  const [searchTerm, setSearchTerm] = useState('')
   const [category, setCategory] = useState('all');
   const [openDialog, setOpenDialog] = useState(false);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
@@ -40,15 +39,14 @@ const Menu = () => {
 
   const { data, error, isLoading, refetch } = category === 'all'
     ? useGetMenuQuery({ searchTerm, page: currentPage, limit: 16 })
-    : useGetItemByCategoryQuery({ category, searchTerm, page: currentPage, limit: 8 });
+    : useGetItemByCategoryQuery({ category, searchTerm, page: currentPage, limit: 16 });
   const [addItem] = useAddItemMutation();
   const [updateItem] = useUpdateItemMutation();
   const [deleteItem] = useDeleteItemMutation();
 
-  // Thêm state cho snackbar
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // "success" hoặc "error"
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const handleAddClick = () => {
     setNewDish({
@@ -110,7 +108,7 @@ const Menu = () => {
         showSnackbar("Thêm món ăn thành công!", "success");
       }
       setOpenDialog(false);
-      refetch(); // Tự động load lại dữ liệu sau khi thêm hoặc cập nhật
+      refetch();
     } catch (err) {
       console.error("Failed to save dish:", err);
       showSnackbar("Có lỗi xảy ra, vui lòng thử lại!", "error");
@@ -139,7 +137,7 @@ const Menu = () => {
     <div>
       <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
         <Container sx={{ flex: "1", paddingBottom: "20px" }}>
-          <h1>Quản lý món ăn</h1>
+          <p className='text-2xl font-semibold pt-4'>QUẢN LÝ MENU</p>
           <div className="flex flex-wrap items-center justify-end gap-y-4 gap-4 text-black">
             <SelectBoxComponent setCategory={setCategory} />
             <SearchComponent setSearchTerm={setSearchTerm} />
@@ -274,14 +272,14 @@ const Menu = () => {
         severity={snackbarSeverity}
       />
       {menuItems?.length > 0 && (
-                    <div className='flex justify-center m-4'>
-                        <PaginationComponent
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={setCurrentPage}
-                        />
-                    </div>
-                )}
+        <div className='flex justify-center m-4'>
+          <PaginationComponent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   );
 };

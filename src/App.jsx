@@ -13,7 +13,6 @@ import Layout from './layouts/Layout'
 import OrderHistory from "./pages/OrderHistoryPage";
 import ContactPage from "./pages/ContactPage";
 import ProfilePage from "./pages/ProfilePage";
-import DishManageForm from "./components/DishManageForm";
 import AdminPage from "./pages/AdminPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 function App() {

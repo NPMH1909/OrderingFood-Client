@@ -35,7 +35,20 @@ export const orderApi = createApi({
                 params: {page, limit}
             })
         }),
+        getAllOrder: builder.query({
+            query: ({ email, status, page = 1, limit = 10 }) => ({
+              url: '/getall', // Đường dẫn API
+              params: { email, status, page, limit } // Truyền các tham số vào query string
+            })
+          }),
+        updateOrderStatus: builder.mutation({
+            query: ({ id, status }) => ({
+                url: `/orders/${id}`,
+                method: 'PUT',
+                body: { status },
+            }),
+        }),
     }),
 });
 
-export const { useCreateOrderMutation, useCreatePaymentOrderMutation, useGetAllOrderByUserQuery } = orderApi;
+export const { useCreateOrderMutation, useCreatePaymentOrderMutation, useGetAllOrderByUserQuery, useGetAllOrderQuery, useUpdateOrderStatusMutation } = orderApi;

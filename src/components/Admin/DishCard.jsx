@@ -8,7 +8,7 @@ import {
   Button,
   Box,
 } from "@mui/material";
-import "../css/components/DishCard_admin.css";
+import "../../css/components/DishCard_admin.css";
 
 const DishCard = ({ dish, onEdit, onDelete }) => {
   return (
