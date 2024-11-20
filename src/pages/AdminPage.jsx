@@ -4,9 +4,9 @@ import { SideBar } from '../components/Admin/SideBar';
 import {
     Cog6ToothIcon,
 } from "@heroicons/react/24/solid";
-import MembersTable from '../components/Admin/OrderManager';
+import OrderManager from '../components/Admin/OrderManager';
 import Menu from '../components/Admin/Menu';
-import Revenue from '../components/Admin/Revenue';
+import RevenueDashboard from '../components/Admin/RevenueDashboard';
 
 const admin_sidebar = [
     {
@@ -16,8 +16,8 @@ const admin_sidebar = [
         },
         sublist: [
             { label: "Menu", elements: <Menu /> },
-            { label: "Đơn hàng", elements: <MembersTable /> },
-            { label: "Doanh thu", elements: <Revenue/> },
+            { label: "Đơn hàng", elements: <OrderManager /> },
+            { label: "Doanh thu", elements: <RevenueDashboard/> },
         ],
     },
 ];

@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useGetMenuQuery, useGetItemByCategoryQuery } from '../apis/menuItemApi';
 import SelectBoxComponent from '../components/SelectBoxComponent';
-import SearchComponent from '../components/SearchComponent';
-import NavbarComponent from '../components/NavbarComponent';
 import CardComponent from '../components/CardComponent';
 import PaginationComponent from '../components/PaginationComponent';
-import FooterComponent from '../components/FooterComponent';
 import NotFoundProduct from '../components/NotFoundProduct';
 import { useSelector } from 'react-redux';
 
@@ -13,22 +10,23 @@ const ProductPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const searchTerm = useSelector((state) => state.search.term);
     const [category, setCategory] = useState('all');
-    const [cartItems, setCartItems] = useState([]); // State cho giỏ hàng
 
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, category]);
-
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [currentPage, searchTerm]);
     const { data, error, isLoading } = category === 'all'
-        ? useGetMenuQuery({ searchTerm, page: currentPage, limit: 16 })
-        : useGetItemByCategoryQuery({ category, searchTerm, page: currentPage, limit: 8 });
+        ? useGetMenuQuery({ searchTerm, page: currentPage, limit: 8 })
+        : useGetItemByCategoryQuery({ category, searchTerm, page: currentPage, limit: 4 });
 
     if (isLoading) return <p>Loading...</p>;
     if (error) return <p>Error: {error.message}</p>;
 
     const totalPages = data.data.totalPages;
     const menuItems = data.data.menuItems;
-
+    const totalItems = data.data.totalItems
     return (
         <div className="flex flex-col min-h-screen">
             <hr className="border border-black" />
@@ -40,10 +38,18 @@ const ProductPage = () => {
                 >
                     <div className="flex flex-wrap items-center justify-end gap-y-4 gap-4 text-black">
                         <SelectBoxComponent setCategory={setCategory} />
-                        {/* <SearchComponent setSearchTerm={searchTerm} /> */}
                     </div>
                 </div>
-
+                {searchTerm && menuItems?.length > 0 && (
+                    <div className="mt-4 text-left text-sm text-gray-700 pl-24">
+                        <p>Đã tìm thấy {totalItems} sản phẩm</p>
+                    </div>
+                )}
+                <div className="mt-4 text-right text-sm text-gray-700 pr-24">
+                    {totalPages > 0  && (
+                        <p>Trang {currentPage} / {totalPages}</p>
+                    )}
+                </div>
                 <div className="w-[90%] mx-auto">
                     <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
                         {menuItems?.length > 0 ? (

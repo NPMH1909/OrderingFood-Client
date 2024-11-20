@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import '../css/components/header.css';
 import SearchIcon from '../assets/SearchIcon.png';
 import UserIcon from '../assets/UserIcon.png';
-import CartIcon from '../assets/CartIcon.png';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { clearUserInfo } from '../slices/userSlice';
 import { MenuItem } from '@material-tailwind/react';
 import { setSearchTerm } from '../slices/searchSlice';
+import { useGetCartQuery } from '../apis/cartApi';
+import { ShoppingCartIcon } from '@heroicons/react/24/solid';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [userInfo, setUserInfo] = useState(null);
-
+  const { data, isLoading, error } = useGetCartQuery();
   useEffect(() => {
     const storedUserData = localStorage.getItem('userData');
     if (storedUserData) {
@@ -25,11 +26,12 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("userData");
+    localStorage.removeItem("token");
+
     dispatch(clearUserInfo());
-    setUserInfo(null); 
+    setUserInfo(null);
     navigate('/');
   };
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       const menu = document.getElementById('user-menu');
@@ -56,8 +58,12 @@ const Header = () => {
   };
 
   const handleSearch = () => {
-    dispatch(setSearchTerm(inputValue)); // Cập nhật searchTerm khi nhấn tìm kiếm
+    navigate(`/product?searchTerm=${inputValue}`);
+    dispatch(setSearchTerm(inputValue)); 
   };
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error loading top sellers!</p>;
+  const total = data?.data?.totalItems
 
   return (
     <div className="header sticky top-0 z-10">
@@ -68,7 +74,6 @@ const Header = () => {
         <div className="nav-links">
           <a href="/">Home</a>
           <a href="/product">Menu</a>
-          <a href="#delivery">Delivery</a>
           <a href="/contact">About</a>
         </div>
         <div className="search-bar">
@@ -108,9 +113,17 @@ const Header = () => {
               Sign in
             </button>
           )}
-          <button onClick={handleCartClick}>
-            <img src={CartIcon} alt="Cart" />
+          <button onClick={handleCartClick} className="relative flex items-center">
+            {userInfo ?(
+              <div>
+                <ShoppingCartIcon className="w-12 h-12" />  
+                <div className="absolute bottom-4 right-3 text-base text-red-800 font-black text-center">{total}</div> {/* Căn bottom */}
+              </div>
+            ):(
+              <ShoppingCartIcon className="w-12 h-12" />  
+            )}
           </button>
+
         </div>
       </div>
     </div>

@@ -1,24 +1,21 @@
 import React, { useState } from 'react';
+import { useForgotPasswordMutation } from '../apis/userApi'; // Adjust the import path based on where your authApi is located
 import { useNavigate } from 'react-router-dom';
-import { useAdminLoginMutation, useLoginMutation } from '../apis/userApi';
-import { useDispatch } from 'react-redux';
 
-
-const AdminLoginPage = () => {
-    const navigate = useNavigate();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [login, { isLoading, error }] = useAdminLoginMutation();
-
-    const loginHandle = async () => {
+const ForgotPassword = () => {
+    const [email, setEmail] = useState('');
+    const [forgotPassword, { isLoading, isError, error, isSuccess }] = useForgotPasswordMutation();
+    const navigate = useNavigate()
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         try {
-            const result = await login({ username, password }).unwrap();
-            localStorage.setItem("adminToken", result.data);
-            navigate('/dashboard');
-            window.location.reload(); // Thực hiện tải lại trang
-
+            // Call the forgotPassword mutation
+            await forgotPassword(email).unwrap();
+            // Handle success (e.g., show success message)
+            alert('A password reset email has been sent.');
         } catch (err) {
-            console.error("Login failed:", err);
+            // Handle error (e.g., show error message)
+            alert(`Error: ${error?.message || 'An error occurred'}`);
         }
     };
     return (
@@ -43,50 +40,41 @@ const AdminLoginPage = () => {
                                     <input
                                         type="text"
                                         className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:border-indigo-500 focus:ring focus:ring-indigo-500"
-                                        placeholder="Username"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <input
-                                        type="password"
-                                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:border-indigo-500 focus:ring focus:ring-indigo-500"
-                                        placeholder="Password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                     />
                                 </div>
 
                                 <div className="text-center mb-4">
                                     <button
                                         type="button"
-                                        onClick={loginHandle}
+                                        onClick={handleSubmit}
                                         disabled={isLoading}
                                         className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-2 rounded-md transition duration-200 hover:shadow-lg"
                                     >
-                                        {isLoading ? 'Logging in...' : 'Log in'}
+                                        {isLoading ? 'Submiting...' : 'Submit'}
                                     </button>
                                 </div>
 
-                                {error && (
-                                    <div className="text-red-500 text-center mb-4">
-                                        Login failed. Please check your credentials.
-                                    </div>
-                                )}
-
-                                <div className="flex items-center justify-between">
-                                    <span>Don't have an account? 
-                                        <span
-                                            onClick={() => navigate('/register')}
-                                            className="text-blue-600 hover:underline cursor-pointer"
-                                        >
-                                            Register
-                                        </span>
-                                    </span>
-                                </div>
                             </form>
+                            {isError && (
+                                <p className="mt-4 text-red-600 text-center">
+                                    {error?.message || 'Something went wrong, please try again.'}
+                                </p>
+                            )}
+                            {isSuccess && (
+                                <p className="mt-4 text-green-600 text-center">Password reset email sent successfully!</p>
+                            )}
+                            <div className="flex items-center justify-between">
+                                <span>Do have an account? <span
+                                        onClick={() => navigate('/login')}
+                                        className="text-blue-600 hover:underline cursor-pointer"
+                                    >
+                                        Login here
+                                    </span>
+                                </span>
+                            </div>
                         </div>
 
                         <div
@@ -107,6 +95,6 @@ const AdminLoginPage = () => {
             </div>
         </section>
     );
-};
+}
 
-export default AdminLoginPage;
+export default ForgotPassword

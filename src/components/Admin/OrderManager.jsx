@@ -16,26 +16,27 @@ import {
 } from "@material-tailwind/react";
 import { useGetAllOrderQuery, useUpdateOrderStatusMutation } from "../../apis/orderApi";
 import PaginationComponent from "../PaginationComponent";
+import { format } from 'date-fns';
 
 const TABS = [
   { label: "All", value: "all" },
-  { label: "Pending", value: "pending" },
+  { label: "Pending", value: "Pending" },
   { label: "Delivery", value: "Delivery" },
   { label: "Success", value: "Success" },
 ];
 
-const MembersTable = () => {
+const OrderManager = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const limit = 3;
+  const limit = 10;
 
-  // State for status filter
   const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch orders based on status filter, current page, and limit
   const { data, isLoading, error, refetch } = useGetAllOrderQuery({
-    currentPage,
+    page: currentPage,
     limit,
-    status: statusFilter !== "all" ? statusFilter : undefined, // Only send status if it's not "all"
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    email: searchQuery || undefined,
   });
 
   const [updateOrderStatus] = useUpdateOrderStatusMutation();
@@ -49,15 +50,16 @@ const MembersTable = () => {
       setOrders(data.data.orders);
     }
   }, [data, isLoading]);
-
   useEffect(() => {
-    // Trigger the API call again whenever statusFilter changes
+    window.scrollTo(0, 0);
+}, [currentPage]);
+  useEffect(() => {
     refetch();
-  }, [statusFilter, currentPage, refetch]);
+  }, [statusFilter, currentPage, searchQuery, refetch]);
 
   const handleTabChange = (newTabValue) => {
-    setStatusFilter(newTabValue); // Update the status filter when tab changes
-    setCurrentPage(1); // Reset to the first page when changing the tab
+    setStatusFilter(newTabValue);
+    setCurrentPage(1);
   };
 
   const handleUpdateStatus = async (order, event) => {
@@ -88,7 +90,17 @@ const MembersTable = () => {
     setSelectedOrder(null);
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
 
+  const formatDate = (date) => {
+    return format(new Date(date), 'dd/MM/yyyy HH:mm:ss');
+  };
+  const formatAmount = (amount) => {
+    return new Intl.NumberFormat('vi-VN').format(amount);
+  };
   return (
     <>
       <Card className="h-full w-full">
@@ -104,9 +116,9 @@ const MembersTable = () => {
                     key={value}
                     onClick={() => handleTabChange(value)}
                     className={`px-4 py-2 rounded-lg cursor-pointer transition-colors duration-300 ease-in-out ${statusFilter === value
-                      ? "bg-blue-500 text-white" // Active tab style
-                      : "bg-gray-100 text-blue-gray-700 hover:bg-blue-200" // Inactive tab style with hover effect
-                      } ${index < TABS.length - 1 ? "border-r-2 border-gray-300" : ""}`} // Add vertical border between tabs
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 text-blue-gray-700 hover:bg-blue-200"
+                      } ${index < TABS.length - 1 ? "border-r-2 border-gray-300" : ""}`}
                   >
                     {label}
                   </div>
@@ -115,7 +127,12 @@ const MembersTable = () => {
             </Tabs>
 
             <div className="w-full md:w-72">
-              <Input label="Search" icon={<MagnifyingGlassIcon className="h-5 w-5" />} />
+              <Input
+                label="Search by Email"
+                icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
             </div>
           </div>
         </CardHeader>
@@ -140,25 +157,26 @@ const MembersTable = () => {
                 {orders?.map((order) => (
                   <tr key={order._id} className="hover:bg-gray-100">
                     <td className="px-4 py-2 border-b border-r border-gray-300">{order.user.name}</td>
-                    <td className="px-4 py-2 border-b border-r border-gray-300">{order.totalAmount}</td>
-                    <td className="px-4 py-2 border-b border-r border-gray-300">{order.createdAt}</td>
+                    <td className="px-4 py-2 border-b border-r border-gray-300">
+                      {formatAmount(order.totalAmount)} VND
+                    </td>
+                    <td className="px-4 py-2 border-b border-r border-gray-300">
+                      {formatDate(order.createdAt)}
+                    </td>
+
                     <td className="px-4 py-2 border-b border-r border-gray-300">{order.status}</td>
-                    <td className="px-4 py-2 border-b">
-                      <Tooltip content="View Order Details">
-                        <Button onClick={() => handleViewDetails(order)} size="sm" variant="outlined">
-                          View Details
-                        </Button>
-                      </Tooltip>
-                      <Tooltip content="Update Order Status">
-                        <Button
-                          onClick={(event) => handleUpdateStatus(order, event)}
-                          disabled={order.status === "Success"}
-                          size="sm"
-                          variant="outlined"
-                        >
-                          Update
-                        </Button>
-                      </Tooltip>
+                    <td className="px-4 py-2 border-b flex gap-4">
+                      <Button onClick={() => handleViewDetails(order)} size="sm" variant="outlined">
+                        View Details
+                      </Button>
+                      <Button
+                        onClick={(event) => handleUpdateStatus(order, event)}
+                        disabled={order.status === "Success"}
+                        size="sm"
+                        variant="outlined"
+                      >
+                        Update
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -167,61 +185,103 @@ const MembersTable = () => {
           )}
         </CardBody>
 
-
-
         <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
-        <div className='flex justify-center m-4'>
-                        <PaginationComponent
-                            currentPage={currentPage}
-                            totalPages={data?.data?.totalPages}
-                            onPageChange={setCurrentPage}
-                        />
-                    </div>
+          <div className='flex justify-center m-4'>
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={data?.data?.totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         </CardFooter>
       </Card>
 
-      {/* Modal hiển thị thông tin đơn hàng */}
       <Dialog open={openModal} onClose={closeModal}>
         <div className="p-4">
-          <Typography variant="h6" color="blue-gray">
+          <Typography className="flex justify-center font-semibold text-2xl">
             Order Details
           </Typography>
           {selectedOrder && (
-            <>
-              <p>Customer: {selectedOrder.user.name}</p>
-              <p>Email: {selectedOrder.user.email}</p>
-              <p>Total Amount: {selectedOrder.totalAmount}</p>
-              <p>Delivery Address: {selectedOrder.deliveryAddress}</p>
-              <p>Created At: {selectedOrder.createdAt}</p>
-              <p>Status: {selectedOrder.status}</p>
-              <p>Order Items:</p>
-              <table className="w-full mt-2 table-auto">
+            <div className="m-4">
+              <div className="flex mb-1">
+                <p className="font-semibold mr-2 ">Customer:</p>
+                <p>{selectedOrder.user.name}</p>
+              </div>
+
+              <div className="flex mb-1">
+                <p className="font-semibold mr-2">Email:</p>
+                <p>{selectedOrder.user.email}</p>
+              </div>
+
+              <div className="flex mb-1">
+                <p className="font-semibold mr-2">Delivery Address:</p>
+                <p>{selectedOrder.deliveryAddress}</p>
+              </div>
+
+              <div className="flex mb-1">
+                <p className="font-semibold mr-2">Created At:</p>
+                <p>{formatDate(selectedOrder.createdAt)}</p>
+              </div>
+
+              <div className="flex mb-1">
+                <p className="font-semibold mr-2">Status:</p>
+                <p>{selectedOrder.status}</p>
+              </div>
+
+              <p className="font-semibold mr-2">Order Items:</p>
+              <table className="w-full mt-4 table-auto border-collapse border border-gray-300">
                 <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
+                  <tr className="bg-gray-100">
+                    <th className="px-4 py-2 border border-gray-300 text-left">Item</th>
+                    <th className="px-4 py-2 border border-gray-300 text-center">Quantity</th>
+                    <th className="px-4 py-2 border border-gray-300 text-right">Price(VND)</th>
+                    <th className="px-4 py-2 border border-gray-300 text-right">Total(VND)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {selectedOrder.items.map((item) => (
-                    <tr key={item._id}>
-                      <td>{item.name}</td>
-                      <td>{item.quantity}</td>
-                      <td>{item.price}</td>
+                    <tr key={item._id} className="hover:bg-gray-50">
+                      <td className="px-4 py-2 border border-gray-300">{item.menuItem.name}</td>
+                      <td className="px-4 py-2 border border-gray-300 text-center">
+                        {item.quantity}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-300 text-right">
+                        {item.menuItem.price.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2 border border-gray-300 text-right">
+                        {(item.menuItem.price * item.quantity).toLocaleString()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
+                <tfoot>
+                  <tr className="font-semibold bg-gray-100">
+                    <td className="px-4 py-2 border border-gray-300 text-right" colSpan="3">
+                      Total Amount:
+                    </td>
+                    <td className="px-4 py-2 border border-gray-300 text-right">
+                      {selectedOrder.totalAmount.toLocaleString()}
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
-            </>
+            </div>
           )}
         </div>
-        <Button onClick={closeModal} variant="outlined" color="blue" className="mt-4">
-          Close
-        </Button>
+        <div className="flex justify-end p-4">
+          <Button
+            onClick={closeModal}
+            variant="outlined"
+            color="blue"
+            className="ml-auto"
+          >
+            Close
+          </Button>
+        </div>
       </Dialog>
+
     </>
   );
 };
 
-export default MembersTable;
+export default OrderManager;

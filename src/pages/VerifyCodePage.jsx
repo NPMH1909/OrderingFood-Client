@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAdminLoginMutation, useLoginMutation } from '../apis/userApi';
-import { useDispatch } from 'react-redux';
+import { useCreateUserMutation } from '../apis/userApi';
 
-
-const AdminLoginPage = () => {
+const VerifyCodePage = () => {
     const navigate = useNavigate();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [login, { isLoading, error }] = useAdminLoginMutation();
-
-    const loginHandle = async () => {
+    const [verificationCode, setVerificationCode] = useState('');
+    const [createUser, { isLoading }] = useCreateUserMutation();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('registerToken'); 
+        console.log('token', token)
         try {
-            const result = await login({ username, password }).unwrap();
-            localStorage.setItem("adminToken", result.data);
-            navigate('/dashboard');
-            window.location.reload(); // Thực hiện tải lại trang
-
-        } catch (err) {
-            console.error("Login failed:", err);
+            const response = await createUser({ token, verificationCode }).unwrap();
+            console.log(response); 
+            alert('Account created successfully!');
+            localStorage.removeItem('registerToken');
+            navigate('/login');
+        } catch (error) {
+            console.error('Verification failed:', error);
+            alert(error?.data?.message || 'Invalid verification code.');
         }
     };
     return (
@@ -43,50 +43,35 @@ const AdminLoginPage = () => {
                                     <input
                                         type="text"
                                         className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:border-indigo-500 focus:ring focus:ring-indigo-500"
-                                        placeholder="Username"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="mb-4">
-                                    <input
-                                        type="password"
-                                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:border-indigo-500 focus:ring focus:ring-indigo-500"
-                                        placeholder="Password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                    />
+                                        placeholder="Verification code"
+                                        value={verificationCode}
+                                        onChange={(e) => setVerificationCode(e.target.value)}
+                                        />
                                 </div>
 
                                 <div className="text-center mb-4">
                                     <button
                                         type="button"
-                                        onClick={loginHandle}
+                                        onClick={handleSubmit}
                                         disabled={isLoading}
                                         className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-2 rounded-md transition duration-200 hover:shadow-lg"
                                     >
-                                        {isLoading ? 'Logging in...' : 'Log in'}
+                                        {isLoading ? 'Submiting...' : 'Submit'}
                                     </button>
                                 </div>
 
-                                {error && (
-                                    <div className="text-red-500 text-center mb-4">
-                                        Login failed. Please check your credentials.
-                                    </div>
-                                )}
-
-                                <div className="flex items-center justify-between">
-                                    <span>Don't have an account? 
-                                        <span
-                                            onClick={() => navigate('/register')}
-                                            className="text-blue-600 hover:underline cursor-pointer"
-                                        >
-                                            Register
-                                        </span>
-                                    </span>
-                                </div>
                             </form>
+                            
+                            
+                            <div className="flex items-center justify-between">
+                                <span>Do have an account? <span
+                                        onClick={() => navigate('/login')}
+                                        className="text-blue-600 hover:underline cursor-pointer"
+                                    >
+                                        Login here
+                                    </span>
+                                </span>
+                            </div>
                         </div>
 
                         <div
@@ -107,6 +92,6 @@ const AdminLoginPage = () => {
             </div>
         </section>
     );
-};
+}
 
-export default AdminLoginPage;
+export default VerifyCodePage

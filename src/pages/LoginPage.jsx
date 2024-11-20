@@ -15,7 +15,7 @@ const LoginPage = () => {
             const result = await login({ username, password }).unwrap();
             localStorage.setItem("token", result.data);
             navigate('/');
-            window.location.reload(); // Thực hiện tải lại trang
+            window.location.reload();
 
         } catch (err) {
             console.error("Login failed:", err);
@@ -77,15 +77,17 @@ const LoginPage = () => {
                                 )}
 
                                 <div className="flex items-center justify-between">
-                                    <span>Don't have an account? 
-                                        <span
+                                    <span>Don't have an account? <span
                                             onClick={() => navigate('/register')}
                                             className="text-blue-600 hover:underline cursor-pointer"
-                                        >
-                                            Register
-                                        </span>
+                                        >Register</span>
                                     </span>
+                                    <span
+                                        onClick={() => navigate('/forgot-password')}
+                                        className="text-blue-600 hover:underline cursor-pointer"
+                                    >Forgot Password</span>
                                 </div>
+
                             </form>
                         </div>
 

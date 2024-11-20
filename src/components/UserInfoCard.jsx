@@ -41,7 +41,6 @@ const UserInfoCard = ({ name, email, address, phone, username, onEdit, onChangeP
       <p><strong>Email:</strong> {email}</p>
       <p><strong>Địa chỉ:</strong> {address}</p>
       <p><strong>Số điện thoại:</strong> {phone}</p>
-      <p><strong>Username:</strong> {username}</p>
     </div>
   );
 };

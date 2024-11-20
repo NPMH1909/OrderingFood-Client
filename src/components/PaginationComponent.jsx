@@ -1,38 +1,80 @@
 import { Button, IconButton } from '@material-tailwind/react';
 import React from 'react';
-import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { ChevronRightIcon, ChevronLeftIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from "@heroicons/react/24/outline";
 
 const PaginationComponent = ({ currentPage, totalPages, onPageChange }) => {
+  // Determine the range of page numbers to display
+  const getPageNumbers = () => {
+    const maxPagesToShow = 8;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    // Adjust startPage if we are at the end of the range
+    if (endPage - startPage < maxPagesToShow - 1) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+  };
+
   return (
     <div className="flex items-center gap-4">
-      <Button
+      {/* First Page Button - only show if more than 8 pages */}
+      {totalPages > 8 && (
+        <IconButton
+          variant="text"
+          onClick={() => onPageChange(1)}
+          disabled={currentPage === 1}
+          className="flex items-center gap-0 rounded-full"
+        >
+          <ChevronDoubleLeftIcon strokeWidth={2} className="h-4 w-4" />
+        </IconButton>
+      )}
+
+      {/* Previous Page Button */}
+      <IconButton
         variant="text"
         onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1} // Vô hiệu hóa nếu là trang đầu
-        className="flex items-center gap-2 rounded-full"
+        disabled={currentPage === 1}
+        className="flex items-center gap-0 rounded-full"
       >
-        <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> Previous
-      </Button>
+        <ChevronLeftIcon strokeWidth={2} className="h-4 w-4" /> 
+      </IconButton>
+
+      {/* Page Number Buttons */}
       <div className="flex items-center gap-2">
-        {Array.from({ length: totalPages }, (_, index) => (
+        {getPageNumbers().map((page) => (
           <IconButton
-            key={index + 1}
-            onClick={() => onPageChange(index + 1)} // Thay đổi trang khi nhấn nút
-            className={currentPage === index + 1 ? "bg-blue-500 text-white" : ""} // Đổi màu nếu là trang hiện tại
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={currentPage === page ? "bg-blue-500 text-white" : ""}
           >
-            {index + 1}
+            {page}
           </IconButton>
         ))}
       </div>
-      <Button
+
+      {/* Next Page Button */}
+      <IconButton
         variant="text"
         onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages} // Vô hiệu hóa nếu là trang cuối
+        disabled={currentPage === totalPages}
         className="flex items-center gap-2 rounded-full"
       >
-        Next
-        <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />
-      </Button>
+        <ChevronRightIcon strokeWidth={2} className="h-4 w-4" />
+      </IconButton>
+
+      {/* Last Page Button - only show if more than 8 pages */}
+      {totalPages > 8 && (
+        <IconButton
+          variant="text"
+          onClick={() => onPageChange(totalPages)}
+          disabled={currentPage === totalPages}
+          className="flex items-center gap-2 rounded-full"
+        >
+          <ChevronDoubleRightIcon strokeWidth={2} className="h-4 w-4" />
+        </IconButton>
+      )}
     </div>
   );
 };

@@ -97,7 +97,9 @@ const Menu = () => {
     setSnackbarSeverity(severity);
     setSnackbarOpen(true);
   };
-
+  useEffect(() => {
+    window.scrollTo(0, 0);
+}, [currentPage, searchTerm]);
   const handleSaveDish = async () => {
     try {
       if (newDish.id) {
@@ -133,6 +135,8 @@ const Menu = () => {
   if (error) return <p>Error: {error.message}</p>;
   const totalPages = data.data.totalPages;
   const menuItems = data.data.menuItems;
+  const totalItems = data.data.totalItems
+
   return (
     <div>
       <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
@@ -150,6 +154,16 @@ const Menu = () => {
           >
             Thêm món ăn mới
           </Button>
+          {searchTerm && menuItems?.length > 0 && (
+            <div className="text-left text-sm text-gray-700">
+              <p>Đã tìm thấy {totalItems} sản phẩm</p>
+            </div>
+          )}
+          <div className="my-4 text-right text-sm text-gray-700">
+            {totalPages > 0 && (
+              <p>Trang {currentPage} / {totalPages}</p>
+            )}
+          </div>
           <Grid container spacing={3}>
             {data.data.menuItems.length > 0 ? (
               data.data.menuItems.map((dish) => (

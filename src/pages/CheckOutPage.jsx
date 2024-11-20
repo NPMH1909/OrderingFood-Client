@@ -12,10 +12,17 @@ const CheckoutPage = () => {
     const [fullName, setFullName] = useState(user.name || '');
     const [address, setAddress] = useState(user.address || '');
     const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || '');
-
+    
+    const [errorMessage, setErrorMessage] = useState('');
     const [createPaymentOrder, { isLoading: isCreatingPayment }] = useCreatePaymentOrderMutation();
 
     const handleCreatePaymentOrderLink = async () => {
+        // Kiểm tra thông tin đã đầy đủ chưa
+        if (!fullName || !address || !phoneNumber) {
+            setErrorMessage('Vui lòng nhập đầy đủ thông tin (Tên, Địa chỉ, Số điện thoại)');
+            return; // Dừng lại không cho phép tạo đơn hàng
+        }
+        
         try {
             const orderCode = Number(String(new Date().getTime()).slice(-6));
             const orderDataToStore = {
@@ -89,6 +96,11 @@ const CheckoutPage = () => {
                                 />
                             </div>
                         </div>
+                        {errorMessage && (
+                            <div className="text-red-500 text-sm mt-4">
+                                {errorMessage}
+                            </div>
+                        )}
                     </div>
 
                     <div className="bg-white p-8 shadow-lg rounded-lg">

@@ -6,7 +6,7 @@ import dishImage from "../assets/images/dishes_2.png";
 import { useChangePasswordMutation, useGetUserByIdQuery, useUpdateUserMutation } from "../apis/userApi";
 import "../css/pages/UserInfoForm.css"
 const ProfilePage = () => {
-  const { data, isLoading, error } = useGetUserByIdQuery();
+  const { data, isLoading, error, refetch } = useGetUserByIdQuery();
   const [updateUser] = useUpdateUserMutation();
   const [changePassword] = useChangePasswordMutation();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -30,6 +30,7 @@ const ProfilePage = () => {
       await updateUser({ id: userInfo.id, data: formData }).unwrap();
       setIsEditModalOpen(false);
       console.log("User info updated successfully");
+      refetch();
     } catch (updateError) {
       console.error("Error updating user info:", updateError);
     }
@@ -57,7 +58,6 @@ const ProfilePage = () => {
             email={userInfo.email}
             address={userInfo.address}
             phone={userInfo.phoneNumber}
-            username={userInfo.username}
             onEdit={handleEdit}
             onChangePassword={handleChangePassword}
           />
