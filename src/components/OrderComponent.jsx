@@ -7,7 +7,7 @@ const OrderComponent = ({ order }) => {
             <div className='container'>
                 <div className='info-section'>
                     <p className='time-display'>
-                        Time: {order?.createdAt
+                        Đặt hàng lúc : {order?.createdAt
                             ? new Date(order.createdAt).toLocaleString('en-US', {
                                 year: 'numeric',
                                 month: '2-digit',
@@ -19,10 +19,10 @@ const OrderComponent = ({ order }) => {
                             })
                             : 'N/A'}
                     </p>
-                    <p className='status-display'>Status: {order?.status}</p>
-                    <p className='total-display'>Total: {Number(order?.totalAmount).toLocaleString('vi-VN')} vnd</p>
-                    <p className='payment-display'>Payment method: {order?.paymentMethod}</p>
-                    <p className='address-display'>Address: {order.deliveryAddress}</p>
+                    <p className='status-display'>Trạng thái: {order?.status}</p>
+                    <p className='total-display'>Tổng tiền: {Number(order?.totalAmount).toLocaleString('vi-VN')} vnd</p>
+                    <p className='payment-display'>Phương thức thanh toán: {order?.paymentMethod}</p>
+                    <p className='address-display'>Địa chỉ: {order.deliveryAddress}</p>
                 </div>
                 <div className='items-display'>
                     <div className='item-row'>

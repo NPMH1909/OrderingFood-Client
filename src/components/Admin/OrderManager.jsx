@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import {
   Card,
   CardHeader,
@@ -17,6 +17,8 @@ import {
 import { useGetAllOrderQuery, useUpdateOrderStatusMutation } from "../../apis/orderApi";
 import PaginationComponent from "../PaginationComponent";
 import { format } from 'date-fns';
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from "react-datepicker";
 
 const TABS = [
   { label: "All", value: "all" },
@@ -31,12 +33,14 @@ const OrderManager = () => {
 
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
 
   const { data, isLoading, error, refetch } = useGetAllOrderQuery({
     page: currentPage,
     limit,
     status: statusFilter !== "all" ? statusFilter : undefined,
     email: searchQuery || undefined,
+    date: selectedDate ? format(selectedDate, "yyyy-MM-dd") : undefined,
   });
 
   const [updateOrderStatus] = useUpdateOrderStatusMutation();
@@ -52,11 +56,9 @@ const OrderManager = () => {
   }, [data, isLoading]);
   useEffect(() => {
     window.scrollTo(0, 0);
-}, [currentPage]);
-  useEffect(() => {
-    refetch();
-  }, [statusFilter, currentPage, searchQuery, refetch]);
+  }, [currentPage]);
 
+  
   const handleTabChange = (newTabValue) => {
     setStatusFilter(newTabValue);
     setCurrentPage(1);
@@ -64,14 +66,14 @@ const OrderManager = () => {
 
   const handleUpdateStatus = async (order, event) => {
     event.stopPropagation();
-    let newStatus = order.status === "Pending" ? "Delivery" : "Success";
-    if (order.status === "Success") return;
+    let newStatus = order?.status === "Pending" ? "Delivery" : "Success";
+    if (order?.status === "Success") return;
 
     try {
       await updateOrderStatus({ id: order._id, status: newStatus });
       setOrders((prevOrders) =>
         prevOrders.map((o) =>
-          o._id === order._id ? { ...o, status: newStatus } : o
+          o._id === order?._id ? { ...o, status: newStatus } : o
         )
       );
       console.log(`Cập nhật đơn hàng ${order._id} sang trạng thái ${newStatus}`);
@@ -79,6 +81,9 @@ const OrderManager = () => {
       console.error("Lỗi khi cập nhật trạng thái:", err);
     }
   };
+  useEffect(() => {
+    refetch();
+  }, [statusFilter, currentPage, searchQuery, selectedDate, handleUpdateStatus, refetch]);
 
   const handleViewDetails = (order) => {
     setSelectedOrder(order);
@@ -94,7 +99,14 @@ const OrderManager = () => {
     setSearchQuery(e.target.value);
     setCurrentPage(1);
   };
-
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    setCurrentPage(1);
+  };
+  const handleClearDate = () => {
+    setSelectedDate(null);
+    setCurrentPage(1);
+  };
   const formatDate = (date) => {
     return format(new Date(date), 'dd/MM/yyyy HH:mm:ss');
   };
@@ -104,7 +116,7 @@ const OrderManager = () => {
   return (
     <>
       <Card className="h-full w-full">
-        <CardHeader floated={false} shadow={false} className="rounded-none">
+        <div floated={false} shadow={false} className="rounded-none">
           <div className="mb-8 flex items-center justify-between gap-8">
             <p className="text-2xl font-semibold text-black">QUẢN LÝ ĐƠN HÀNG</p>
           </div>
@@ -126,16 +138,47 @@ const OrderManager = () => {
               </TabsHeader>
             </Tabs>
 
-            <div className="w-full md:w-72">
-              <Input
-                label="Search by Email"
-                icon={<MagnifyingGlassIcon className="h-5 w-5" />}
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
+            <div className="w-full md:w-auto flex justify-between items-center gap-4">
+              <div className="flex-1">
+                <Input
+                  label="Tìm kiếm..."
+                  icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="border border-gray-300 rounded px-4 py-2 w-full"
+                />
+              </div>
+
+              {/* Wrapper div cho DatePicker và Button */}
+              <div className="flex items-center gap-4 relative">
+                <div className="flex-1 flex justify-center">
+                  <DatePicker
+                    selected={selectedDate}
+                    onChange={handleDateChange}
+                    placeholderText="Chọn ngày"
+                    dateFormat="dd/MM/yyyy"
+                    popperProps={{
+                      placement: 'bottom-start'
+                    }}
+                    
+                    className="border border-blue-gray-800 rounded pl-4 py-2 w-full z-50"
+                  />
+                  <Button
+                    onClick={handleClearDate}
+                    size="sm"
+                    variant="outlined"
+                    className="hidden md:flex"
+                  >
+                    <ArrowPathIcon className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
             </div>
+
           </div>
-        </CardHeader>
+
+
+        </div>
 
         <CardBody className="overflow-scroll px-0">
           {orders?.length === 0 ? (
@@ -146,36 +189,36 @@ const OrderManager = () => {
             <table className="mt-4 w-full min-w-max table-auto text-left border-collapse">
               <thead className="border-y-2 border-gray-300">
                 <tr>
-                  <th className="px-4 py-2 border-r border-gray-300">Customer</th>
-                  <th className="px-4 py-2 border-r border-gray-300">Total</th>
-                  <th className="px-4 py-2 border-r border-gray-300">Created at</th>
-                  <th className="px-4 py-2 border-r border-gray-300">Status</th>
-                  <th className="px-4 py-2">Actions</th>
+                  <th className="px-4 py-2 border-r border-gray-300">Khách hàng</th>
+                  <th className="px-4 py-2 border-r border-gray-300">Tổng tiền</th>
+                  <th className="px-4 py-2 border-r border-gray-300">Thời gian đặt hàng</th>
+                  <th className="px-4 py-2 border-r border-gray-300">Trạng thái</th>
+                  <th className="px-4 py-2"></th>
                 </tr>
               </thead>
               <tbody>
                 {orders?.map((order) => (
-                  <tr key={order._id} className="hover:bg-gray-100">
-                    <td className="px-4 py-2 border-b border-r border-gray-300">{order.user.name}</td>
+                  <tr key={order?._id} className="hover:bg-gray-100">
+                    <td className="px-4 py-2 border-b border-r border-gray-300">{order?.user?.name}</td>
                     <td className="px-4 py-2 border-b border-r border-gray-300">
-                      {formatAmount(order.totalAmount)} VND
+                      {formatAmount(order?.totalAmount)} VND
                     </td>
                     <td className="px-4 py-2 border-b border-r border-gray-300">
-                      {formatDate(order.createdAt)}
+                      {formatDate(order?.createdAt)}
                     </td>
 
-                    <td className="px-4 py-2 border-b border-r border-gray-300">{order.status}</td>
+                    <td className="px-4 py-2 border-b border-r border-gray-300">{order?.status}</td>
                     <td className="px-4 py-2 border-b flex gap-4">
                       <Button onClick={() => handleViewDetails(order)} size="sm" variant="outlined">
-                        View Details
+                        Chi tiết
                       </Button>
                       <Button
                         onClick={(event) => handleUpdateStatus(order, event)}
-                        disabled={order.status === "Success"}
+                        disabled={order?.status === "Success"}
                         size="sm"
                         variant="outlined"
                       >
-                        Update
+                        Cập nhật
                       </Button>
                     </td>
                   </tr>
@@ -199,57 +242,57 @@ const OrderManager = () => {
       <Dialog open={openModal} onClose={closeModal}>
         <div className="p-4">
           <Typography className="flex justify-center font-semibold text-2xl">
-            Order Details
+            CHI TIẾT ĐƠN HÀNG
           </Typography>
           {selectedOrder && (
             <div className="m-4">
               <div className="flex mb-1">
-                <p className="font-semibold mr-2 ">Customer:</p>
-                <p>{selectedOrder.user.name}</p>
+                <p className="font-semibold mr-2 ">Khách hàng:</p>
+                <p>{selectedOrder?.user?.name}</p>
               </div>
 
               <div className="flex mb-1">
                 <p className="font-semibold mr-2">Email:</p>
-                <p>{selectedOrder.user.email}</p>
+                <p>{selectedOrder?.user?.email}</p>
               </div>
 
               <div className="flex mb-1">
-                <p className="font-semibold mr-2">Delivery Address:</p>
-                <p>{selectedOrder.deliveryAddress}</p>
+                <p className="font-semibold mr-2">Địa chỉ: </p>
+                <p>{selectedOrder?.deliveryAddress}</p>
               </div>
 
               <div className="flex mb-1">
-                <p className="font-semibold mr-2">Created At:</p>
-                <p>{formatDate(selectedOrder.createdAt)}</p>
+                <p className="font-semibold mr-2">Thời gian đặt hàng:</p>
+                <p>{formatDate(selectedOrder?.createdAt)}</p>
               </div>
 
               <div className="flex mb-1">
-                <p className="font-semibold mr-2">Status:</p>
-                <p>{selectedOrder.status}</p>
+                <p className="font-semibold mr-2">Trạng thái:</p>
+                <p>{selectedOrder?.status}</p>
               </div>
 
-              <p className="font-semibold mr-2">Order Items:</p>
+              <p className="font-semibold mr-2"> Sản phẩm:</p>
               <table className="w-full mt-4 table-auto border-collapse border border-gray-300">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="px-4 py-2 border border-gray-300 text-left">Item</th>
-                    <th className="px-4 py-2 border border-gray-300 text-center">Quantity</th>
-                    <th className="px-4 py-2 border border-gray-300 text-right">Price(VND)</th>
-                    <th className="px-4 py-2 border border-gray-300 text-right">Total(VND)</th>
+                    <th className="px-4 py-2 border border-gray-300 text-left">Sản phẩm</th>
+                    <th className="px-4 py-2 border border-gray-300 text-center">Số lượng</th>
+                    <th className="px-4 py-2 border border-gray-300 text-right">Đơn giá (VND)</th>
+                    <th className="px-4 py-2 border border-gray-300 text-right">Thành tiền (VND)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedOrder.items.map((item) => (
+                  {selectedOrder?.items.map((item) => (
                     <tr key={item._id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 border border-gray-300">{item.menuItem.name}</td>
+                      <td className="px-4 py-2 border border-gray-300">{item?.menuItem?.name}</td>
                       <td className="px-4 py-2 border border-gray-300 text-center">
-                        {item.quantity}
+                        {item?.quantity}
                       </td>
                       <td className="px-4 py-2 border border-gray-300 text-right">
-                        {item.menuItem.price.toLocaleString()}
+                        {item.menuItem?.price.toLocaleString()}
                       </td>
                       <td className="px-4 py-2 border border-gray-300 text-right">
-                        {(item.menuItem.price * item.quantity).toLocaleString()}
+                        {(item?.menuItem?.price * item?.quantity).toLocaleString()}
                       </td>
                     </tr>
                   ))}
@@ -257,10 +300,10 @@ const OrderManager = () => {
                 <tfoot>
                   <tr className="font-semibold bg-gray-100">
                     <td className="px-4 py-2 border border-gray-300 text-right" colSpan="3">
-                      Total Amount:
+                      Tổng tiền:
                     </td>
                     <td className="px-4 py-2 border border-gray-300 text-right">
-                      {selectedOrder.totalAmount.toLocaleString()}
+                      {selectedOrder?.totalAmount.toLocaleString()}
                     </td>
                   </tr>
                 </tfoot>

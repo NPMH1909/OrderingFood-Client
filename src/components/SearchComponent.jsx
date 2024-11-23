@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Input } from '@material-tailwind/react';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/solid'; // Import SearchIcon từ Heroicons
 
 const SearchComponent = ({ setSearchTerm }) => {
     const [inputValue, setInputValue] = useState('');
@@ -13,7 +14,7 @@ const SearchComponent = ({ setSearchTerm }) => {
             <Input
                 type="search"
                 color="black"
-                label="Type here..."
+                label="Tìm kiếm..."
                 className="pr-20"
                 containerProps={{
                     className: "min-w-[288px]",
@@ -26,7 +27,7 @@ const SearchComponent = ({ setSearchTerm }) => {
                 className="!absolute right-1 top-1 rounded ml-2"
                 onClick={handleSearch} 
             >
-                Search
+                 <MagnifyingGlassIcon className="w-4 h-4 text-gray-800" />
             </Button>
         </div>
     );

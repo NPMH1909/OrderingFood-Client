@@ -36,15 +36,21 @@ export const orderApi = createApi({
             })
         }),
         getAllOrder: builder.query({
-            query: ({ email, status, page = 1, limit = 10 }) => ({
-                url: '/getall', // Đường dẫn API
-                params: { email, status, page, limit } // Truyền các tham số vào query string
+            query: ({ email, status, page = 1, limit = 10, date }) => ({
+                url: '/getall', 
+                params: { email, status, page, limit, date },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+                }, 
             })
         }),
         updateOrderStatus: builder.mutation({
             query: ({ id, status }) => ({
                 url: `/orders/${id}`,
                 method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+                }, 
                 body: { status },
             }),
         }),

@@ -17,12 +17,13 @@ const Header = () => {
   const [inputValue, setInputValue] = useState("");
   const [userInfo, setUserInfo] = useState(null);
   const { data, isLoading, error } = useGetCartQuery();
+  const isLogin = localStorage.getItem('token');
   useEffect(() => {
-    const storedUserData = localStorage.getItem('userData');
+     const storedUserData = localStorage.getItem('userData');
     if (storedUserData) {
       setUserInfo(JSON.parse(storedUserData));
     }
-  }, []);
+  }, [isLogin]);
 
   const handleLogout = () => {
     localStorage.removeItem("userData");
@@ -47,10 +48,10 @@ const Header = () => {
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [isMenuOpen]);
+  }, [isMenuOpen, userInfo]);
 
   const handleCartClick = () => {
-    if (userInfo) {
+    if (isLogin) {
       navigate('/cart');
     } else {
       navigate('/login');
@@ -62,7 +63,7 @@ const Header = () => {
     dispatch(setSearchTerm(inputValue)); 
   };
   if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error loading top sellers!</p>;
+  //if (error) return <p>Error loading top sellers!</p>;
   const total = data?.data?.totalItems
 
   return (
@@ -72,18 +73,18 @@ const Header = () => {
           <img src="https://idodesign.vn/wp-content/uploads/2023/04/40-thiet-ke-logo-mau-do-cham-den-trai-tim-khach-hang-11.jpg" alt="Logo" />
         </div>
         <div className="nav-links">
-          <a href="/">Home</a>
-          <a href="/product">Menu</a>
-          <a href="/contact">About</a>
+          <a href="/">Trang chủ</a>
+          <a href="/product">Sản phẩm</a>
+          <a href="/contact">Về chúng tôi</a>
         </div>
         <div className="search-bar">
-          <input type="text" placeholder="Search..." onChange={(e) => setInputValue(e.target.value)} />
+          <input type="text" placeholder="Tìm kiếm..." onChange={(e) => setInputValue(e.target.value)} />
           <button onClick={handleSearch}>
             <img src={SearchIcon} alt="Search" />
           </button>
         </div>
         <div className="nav-links">
-          {userInfo ? (
+          {isLogin ? (
             <div className="relative" id="user-menu">
               <button onClick={() => setIsMenuOpen((prev) => !prev)}>
                 <img src={UserIcon} alt="User" />
@@ -110,11 +111,11 @@ const Header = () => {
             </div>
           ) : (
             <button onClick={() => { navigate('/login') }}>
-              Sign in
+              Đăng nhập
             </button>
           )}
           <button onClick={handleCartClick} className="relative flex items-center">
-            {userInfo ?(
+            {isLogin ?(
               <div>
                 <ShoppingCartIcon className="w-12 h-12" />  
                 <div className="absolute bottom-4 right-3 text-base text-red-800 font-black text-center">{total}</div> {/* Căn bottom */}

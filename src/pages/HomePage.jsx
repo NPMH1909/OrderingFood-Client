@@ -37,7 +37,7 @@ const HomePage = () => {
       {/* Top Seller Section */}
       <div>
         <div className="ml-[6%]">
-          <p className="text-2xl font-bold">Top Seller</p>
+          <p className="text-2xl font-bold">Sản phẩm nổi bật</p>
         </div>
         <div className="w-[90%] mx-auto">
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
@@ -59,7 +59,7 @@ const HomePage = () => {
       {/* New Product Section */}
       <div className='mt-8'>
         <div className="ml-[6%]">
-          <p className="text-2xl font-bold">New Product</p>
+          <p className="text-2xl font-bold">Sản phẩm mới</p>
         </div>
         <div className="w-[90%] mx-auto">
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">

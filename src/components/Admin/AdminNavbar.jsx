@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from "react"; // Import useState và useEffect
+import React, { useState, useEffect } from "react"; 
 import { Navbar, Typography, Button } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import { AppBar, Toolbar } from "@mui/material";
 import "../../css/pages/DishManageForm.css";
 
 const AdminNavbar = () => {
-  const [isNavOpen, setIsNavOpen] = useState(false); // Khởi tạo state isNavOpen
-  const navigate = useNavigate(); // Hook để chuyển hướng trang
+  const [isNavOpen, setIsNavOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Lắng nghe sự kiện thay đổi kích thước cửa sổ và đóng navigation khi kích thước lớn hơn 960px
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 960) {
-        setIsNavOpen(false); // Đóng navigation khi kích thước cửa sổ >= 960px
+        setIsNavOpen(false);
       }
     };
     
@@ -31,10 +30,10 @@ const AdminNavbar = () => {
       <AppBar position="static" className="admin-header" sx={{ bgcolor: "#B43f3f" }}>
         <Toolbar className="flex justify-between">
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Restaurant Management Page
+            QUẢN LÍ CỬA HÀNG
           </Typography>
           <Button color="gray" onClick={handleLogout} className="ml-auto">
-            Log out
+            Đăng xuất
           </Button>
         </Toolbar>
       </AppBar>

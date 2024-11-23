@@ -7,12 +7,10 @@ const CardComponent = ({ id, name, image, description, price }) => {
 
   const handleAddToCart = async () => {
     try {
-      console.log('product', id)
-      await addToCart( { productId: id, quantity: 1 }).unwrap(); // Gọi mutation và đợi kết quả
-      // Có thể thêm thông báo thành công ở đây
+      await addToCart( { productId: id, quantity: 1 }).unwrap();
+
     } catch (error) {
       console.error('Failed to add to cart: ', error);
-      // Xử lý lỗi ở đây nếu cần
     }
   };
 
@@ -34,9 +32,9 @@ const CardComponent = ({ id, name, image, description, price }) => {
           ripple={false}
           fullWidth={true}
           className="bg-blue-gray-900/10 text-blue-gray-900 shadow-none hover:scale-105 hover:shadow-none focus:scale-105 focus:shadow-none active:scale-100"
-          disabled={isLoading} // Vô hiệu hóa nút khi đang thêm vào giỏ
+          disabled={isLoading} 
         >
-          {isLoading ? 'Adding...' : 'Add to Cart'}
+          {isLoading ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
         </Button>
       </CardFooter>
     </Card>

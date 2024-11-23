@@ -4,12 +4,13 @@ import '../css/pages/orderHistory.css';
 import { useGetAllOrderByUserQuery } from "../apis/orderApi";
 import PaginationComponent from "../components/PaginationComponent";
 import { useCreateOrderMutation } from '../apis/orderApi';
-import { useRemoveItemFromCartMutation } from '../apis/cartApi'; // Giả định bạn có một API xóa
+import { useRemoveItemFromCartMutation } from '../apis/cartApi'; 
 const OrderHistory = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [createOrder] = useCreateOrderMutation();
     const [removeFromCartApi] = useRemoveItemFromCartMutation(); 
     const hasRun = useRef(false); 
+    const { data, isLoading, error, refetch } = useGetAllOrderByUserQuery({ page: currentPage, limit: 5 });
 
     useEffect(() => {
         const handleCreateOrder = async () => {
@@ -24,6 +25,7 @@ const OrderHistory = () => {
                         }));
                     }
                     localStorage.removeItem('orderData'); 
+                    refetch()
                 }
             } catch (error) {
                 console.log(error.message);
@@ -34,8 +36,8 @@ const OrderHistory = () => {
             handleCreateOrder();
             hasRun.current = true; 
         }
-    }, [createOrder, removeFromCartApi]);
-    const { data, isLoading, error } = useGetAllOrderByUserQuery({ page: currentPage, limit: 5 });
+    }, [createOrder, removeFromCartApi, refetch]);
+
     
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -49,7 +51,7 @@ const OrderHistory = () => {
 
     return (
         <div>
-            <h1 className="text-2xl font-semibold text-black">Order History</h1>
+            <h1 className="text-2xl font-semibold text-black">Lịch sử đơn hàng</h1>
             <div>
                 <div className="mt-4 text-right text-sm text-gray-700 pr-48">
                     {totalPages>0 && (

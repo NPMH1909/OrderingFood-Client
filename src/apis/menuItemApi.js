@@ -27,7 +27,7 @@ export const menuItemApi = createApi({
                     url: "/create",
                     method: "POST",
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
                     },
                     body: formData,
                 };
@@ -48,7 +48,7 @@ export const menuItemApi = createApi({
                     url: `/update/${id}`,
                     method: "PUT",
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
                     },
                     body: formData,
                 };
@@ -59,7 +59,7 @@ export const menuItemApi = createApi({
                     url: `/delete-item/${id}`,
                     method: "DELETE",
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
                     },
                     body: {id}
             }),

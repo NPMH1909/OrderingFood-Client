@@ -69,13 +69,13 @@ const CartPage = () => {
   {/* Chỉ hiển thị phần Order Summary nếu giỏ hàng không trống */}
   {cartItems?.data?.items.length > 0 && (
     <div className="bg-white p-4 shadow-md rounded sticky top-20 h-fit">
-      <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+      <h3 className="text-lg font-semibold mb-4">Đơn hàng</h3>
       <div className="text-sm text-gray-700">
-        <p className="flex justify-between">Shipping cost <span>TBD</span></p>
+        {/* <p className="flex justify-between">Shipping cost <span>TBD</span></p>
         <p className="flex justify-between">Discount <span>-$0</span></p>
-        <p className="flex justify-between">Tax <span>TBD</span></p>
+        <p className="flex justify-between">Tax <span>TBD</span></p> */}
         <hr className="my-2" />
-        <p className="flex justify-between font-semibold">Estimated Total <span>{total.toLocaleString('vi-VN')}đ</span></p>
+        <p className="flex justify-between font-semibold">Tổng tiền<span>{total.toLocaleString('vi-VN')}đ</span></p>
       </div>
       <button className="w-full bg-black text-white py-2 mt-4 rounded" onClick={handleCheckout}>
         Checkout

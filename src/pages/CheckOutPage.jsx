@@ -9,9 +9,9 @@ const CheckoutPage = () => {
     const { selectedCartItems, totalAmount } = location.state || {};
     const user = useSelector((state) => state.user.userInfo);
 
-    const [fullName, setFullName] = useState(user.name || '');
-    const [address, setAddress] = useState(user.address || '');
-    const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber || '');
+    const [fullName, setFullName] = useState(user?.name || '');
+    const [address, setAddress] = useState(user?.address || '');
+    const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || '');
     
     const [errorMessage, setErrorMessage] = useState('');
     const [createPaymentOrder, { isLoading: isCreatingPayment }] = useCreatePaymentOrderMutation();
@@ -53,20 +53,20 @@ const CheckoutPage = () => {
         <div>
             <div>
                 <span className='text-blue-500 ml-20 cursor-pointer hover:underline' onClick={() => navigate('/cart')}>
-                    My Cart
+                    Giỏ hàng
                 </span>
                 <span className='text-blue-500 mx-2'>&gt;</span>
-                <span className='text-blue-500 cursor-pointer'>Checkout</span>
+                <span className='text-blue-500 cursor-pointer'>Đặt hàng</span>
             </div>
             <div className="flex justify-center min-h-screen bg-gray-100 p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-4xl">
                     <div className="bg-white p-8 shadow-lg rounded-lg">
-                        <h2 className="text-2xl font-bold mb-4">Checkout</h2>
-                        <h3 className="text-lg font-semibold mb-4">Shipping Information</h3>
+                        <h2 className="text-2xl font-bold mb-4">ĐƠN HÀNG</h2>
+                        <h3 className="text-lg font-semibold mb-4">Thông tin người dùng</h3>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium">Full name *</label>
+                                <label className="block text-sm font-medium">Họ tên *</label>
                                 <input
                                     type="text"
                                     value={fullName}
@@ -76,7 +76,7 @@ const CheckoutPage = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium">Address *</label>
+                                <label className="block text-sm font-medium">Địa chỉ *</label>
                                 <input
                                     type="text"
                                     value={address}
@@ -86,7 +86,7 @@ const CheckoutPage = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium">Phone number *</label>
+                                <label className="block text-sm font-medium">Số điện thoại *</label>
                                 <input
                                     type="tel"
                                     value={phoneNumber}
@@ -104,7 +104,7 @@ const CheckoutPage = () => {
                     </div>
 
                     <div className="bg-white p-8 shadow-lg rounded-lg">
-                        <h3 className="text-lg font-semibold mb-4">Review your cart</h3>
+                        <h3 className="text-lg font-semibold mb-4">Chi tiết đơn hàng</h3>
                         <div className="space-y-4 mb-4">
                             {selectedCartItems && selectedCartItems.map((item) => (
                                 <div key={item._id} className="flex items-center justify-between">
@@ -119,16 +119,16 @@ const CheckoutPage = () => {
                         </div>
 
                         <div className="space-y-2 text-sm text-gray-700">
-                            <div className="flex justify-between"><span>Subtotal</span><span>{totalAmount.toLocaleString('vi-VN')}đ</span></div>
+                            {/* <div className="flex justify-between"><span>Subtotal</span><span>{totalAmount.toLocaleString('vi-VN')}đ</span></div>
                             <div className="flex justify-between"><span>Shipping</span><span>TBD</span></div>
-                            <div className="flex justify-between"><span>Discount</span><span>-TBD</span></div>
+                            <div className="flex justify-between"><span>Discount</span><span>-TBD</span></div> */}
                             <div className="flex justify-between font-semibold text-lg">
-                                <span>Total</span><span>{totalAmount.toLocaleString('vi-VN')}đ</span>
+                                <span>Tổng tiền</span><span>{totalAmount.toLocaleString('vi-VN')}đ</span>
                             </div>
                         </div>
 
                         <button className="w-full bg-black text-white py-2 mt-4 rounded" onClick={handleCreatePaymentOrderLink}>
-                            Proceed to Payment
+                            Thanh toán
                         </button>
                     </div>
                 </div>

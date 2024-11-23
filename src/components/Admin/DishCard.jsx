@@ -44,12 +44,12 @@ const DishCard = ({ dish, onEdit, onDelete }) => {
             color="textSecondary"
             className="category-text"
           >
-            Category : {dish.category}
+            Loại: {dish.category}
           </Typography>
         </Box>
         <Box className="card-description" sx={{ height: "40px" }}>
           <Typography variant="body2" color="text.secondary" noWrap>
-            {dish.description}
+            Mô tả: {dish.description}
           </Typography>
         </Box>
         <Box className="card-price" sx={{ height: "30px" }}>
@@ -58,13 +58,13 @@ const DishCard = ({ dish, onEdit, onDelete }) => {
             color="primary"
             sx={{ fontWeight: "bold" }}
           >
-            Price: {dish.price} dong VN
+            Giá: {dish.price.toLocaleString('vi-VN')} VND
           </Typography>
         </Box>
         <Box className="card-quantity" sx={{ height: "30px" }}>
-          <Typography variant="body2" color="text.secondary">
+          {/* <Typography variant="body2" color="text.secondary">
             Quantity: {dish.quantity}
-          </Typography>
+          </Typography> */}
         </Box>
       </CardContent>
       <CardActions className="card-actions">
@@ -74,7 +74,7 @@ const DishCard = ({ dish, onEdit, onDelete }) => {
           color="primary"
           onClick={() => onEdit(dish)}
         >
-          Edit
+          Cập nhật
         </Button>
         <Button
           size="small"
@@ -82,7 +82,7 @@ const DishCard = ({ dish, onEdit, onDelete }) => {
           color="secondary"
           onClick={() => onDelete(dish.id)}
         >
-          Delete
+          Xóa
         </Button>
       </CardActions>
     </Card>

@@ -21,6 +21,7 @@ const LoginPage = () => {
             console.error("Login failed:", err);
         }
     };
+    
     return (
         <section className="h-screen bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">
             <div className="max-w-5xl w-full p-10">
