@@ -7,6 +7,7 @@ import {
 import OrderManager from '../components/Admin/OrderManager';
 import Menu from '../components/Admin/Menu';
 import RevenueDashboard from '../components/Admin/RevenueDashboard';
+import Feedback from '../components/Admin/FeedBack';
 
 const admin_sidebar = [
     {
@@ -18,6 +19,7 @@ const admin_sidebar = [
             { label: "Menu", elements: <Menu /> },
             { label: "Đơn hàng", elements: <OrderManager /> },
             { label: "Doanh thu", elements: <RevenueDashboard/> },
+            { label: "Phản hổi", elements: <Feedback/> },
         ],
     },
 ];

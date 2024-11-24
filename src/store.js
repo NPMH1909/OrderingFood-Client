@@ -7,6 +7,7 @@ import userReducer from './slices/userSlice'
 import { orderApi } from './apis/orderApi';
 import { cartApi } from './apis/cartApi';
 import searchReducer from './slices/searchSlice'
+import { contactApi } from './apis/contactApi';
 const persistedUserInfo = JSON.parse(localStorage.getItem("userData"));
 
 // const username = localStorage.getItem("user");
@@ -27,6 +28,7 @@ export const store = configureStore({
     [userApi.reducerPath]: userApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
     [cartApi.reducerPath]: cartApi.reducer,
+    [contactApi.reducerPath]: contactApi.reducer,
     cart: cartReducer,
     user: userReducer,
     search: searchReducer,
@@ -38,4 +40,5 @@ export const store = configureStore({
       .concat(userApi.middleware)
       .concat(orderApi.middleware)
       .concat(cartApi.middleware)
+      .concat(contactApi.middleware),
 });

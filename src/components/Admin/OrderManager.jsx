@@ -196,13 +196,14 @@ const OrderManager = () => {
                   <th className="px-4 py-2 border-r border-gray-300">Tổng tiền</th>
                   <th className="px-4 py-2 border-r border-gray-300">Thời gian đặt hàng</th>
                   <th className="px-4 py-2 border-r border-gray-300">Trạng thái</th>
+                  <th className="px-4 py-2 border-r border-gray-300">Thanh toán</th>
                   <th className="px-4 py-2"></th>
                 </tr>
               </thead>
               <tbody>
                 {orders?.map((order) => (
                   <tr key={order?._id} className="hover:bg-gray-100">
-                    <td className="px-4 py-2 border-b border-r border-gray-300">{order?.user?.name}</td>
+                    <td className="px-4 py-2 border-b border-r border-gray-300">{order?.name}</td>
                     <td className="px-4 py-2 border-b border-r border-gray-300">
                       {formatAmount(order?.totalAmount)} VND
                     </td>
@@ -211,6 +212,7 @@ const OrderManager = () => {
                     </td>
 
                     <td className="px-4 py-2 border-b border-r border-gray-300">{order?.status}</td>
+                    <td className="px-4 py-2 border-b border-r border-gray-300">{order?.isPayment}</td>
                     <td className="px-4 py-2 border-b flex gap-4">
                       <Button onClick={() => handleViewDetails(order)} size="sm" variant="outlined">
                         Chi tiết
@@ -251,9 +253,12 @@ const OrderManager = () => {
             <div className="m-4">
               <div className="flex mb-1">
                 <p className="font-semibold mr-2 ">Khách hàng:</p>
-                <p>{selectedOrder?.user?.name}</p>
+                <p>{selectedOrder?.name}</p>
               </div>
-
+              <div className="flex mb-1">
+                <p className="font-semibold mr-2 ">Số liên hệ:</p>
+                <p>{selectedOrder?.phone}</p>
+              </div>
               <div className="flex mb-1">
                 <p className="font-semibold mr-2">Email:</p>
                 <p>{selectedOrder?.user?.email}</p>
@@ -274,7 +279,7 @@ const OrderManager = () => {
                 <p>{selectedOrder?.status}</p>
               </div>
               <div className="flex mb-1">
-                <p className="font-semibold mr-2">Trạng thái:</p>
+                <p className="font-semibold mr-2">Thanh toán:</p>
                 <p>{selectedOrder?.isPayment}</p>
               </div>
               <p className="font-semibold mr-2"> Sản phẩm:</p>

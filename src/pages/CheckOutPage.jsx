@@ -28,10 +28,12 @@ const CheckoutPage = () => {
         try {
             const orderDataToStore = {
                 user: user._id,
+                name: fullName,
                 items: selectedCartItems.map(item => ({
                     menuItem: item.item,
                     quantity: item.quantity,
                 })),
+                phone:phoneNumber,
                 totalAmount: totalAmount,
                 paymentMethod: paymentMethod,
                 deliveryAddress: address,

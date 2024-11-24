@@ -1,15 +1,8 @@
-import React, { useState } from "react";
+// src/components/ContactCard.js
+import React from "react";
 import "../css/components/contactCard.css";
 
-const ContactCard = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-
-  const handleNameChange = (e) => setName(e.target.value);
-  const handleEmailChange = (e) => setEmail(e.target.value);
-  const handleMessageChange = (e) => setMessage(e.target.value);
-
+const ContactCard = ({ name, email, content, onNameChange, onEmailChange, onContentChange, onSubmit, isLoading }) => {
   return (
     <div className="outer-card">
       <div className="contact-card">
@@ -19,7 +12,7 @@ const ContactCard = () => {
           <input
             type="text"
             value={name}
-            onChange={handleNameChange}
+            onChange={(e) => onNameChange(e.target.value)}
             placeholder="Nhập tên của bạn"
           />
         </div>
@@ -28,20 +21,25 @@ const ContactCard = () => {
           <input
             type="email"
             value={email}
-            onChange={handleEmailChange}
+            onChange={(e) => onEmailChange(e.target.value)}
             placeholder="Nhập email của bạn"
           />
         </div>
         <div className="form-field">
           <label>Nội dung:</label>
           <textarea
-            value={message}
-            onChange={handleMessageChange}
+            value={content}
+            onChange={(e) => onContentChange(e.target.value)}
             placeholder="Nhập nội dung đánh giá"
           />
         </div>
-        <button type="button" className="submit-button">
-          Gửi liên hệ
+        <button
+          type="button"
+          className="submit-button"
+          onClick={onSubmit}
+          disabled={isLoading} // Disable khi đang gửi
+        >
+          {isLoading ? "Đang gửi..." : "Gửi liên hệ"}
         </button>
       </div>
     </div>

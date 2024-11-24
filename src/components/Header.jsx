@@ -75,7 +75,7 @@ const Header = () => {
         <div className="nav-links">
           <a href="/">Trang chủ</a>
           <a href="/product">Sản phẩm</a>
-          <a href="/contact">Về chúng tôi</a>
+          <a href="/contact">Liên hệ</a>
         </div>
         <div className="search-bar">
           <input type="text" placeholder="Tìm kiếm..." onChange={(e) => setInputValue(e.target.value)} />
