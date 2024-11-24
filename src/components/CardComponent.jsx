@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardHeader, CardBody, CardFooter, Typography, Button } from "@material-tailwind/react";
 import { useAddItemToCartMutation } from '../apis/cartApi'; // Điều chỉnh đường dẫn nếu cần
 
 const CardComponent = ({ id, name, image, description, price }) => {
   const [addToCart, { isLoading }] = useAddItemToCartMutation(); // Sử dụng hook mutation
+  const [showNotification, setShowNotification] = useState(false); // State để quản lý hiển thị thông báo
 
   const handleAddToCart = async () => {
     try {
-      await addToCart( { productId: id, quantity: 1 }).unwrap();
-
+      await addToCart({ productId: id, quantity: 1 }).unwrap();
+      setShowNotification(true); // Hiển thị thông báo
+      setTimeout(() => {
+        setShowNotification(false); // Ẩn thông báo sau 2 giây
+      }, 2000);
     } catch (error) {
       console.error('Failed to add to cart: ', error);
     }
@@ -37,6 +41,13 @@ const CardComponent = ({ id, name, image, description, price }) => {
           {isLoading ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
         </Button>
       </CardFooter>
+
+      {/* Thông báo đã thêm vào giỏ hàng */}
+      {showNotification && (
+        <div className="absolute top-4 right-4 bg-green-500 text-white p-2 rounded-md shadow-md">
+          Đã thêm vào giỏ hàng!
+        </div>
+      )}
     </Card>
   );
 };

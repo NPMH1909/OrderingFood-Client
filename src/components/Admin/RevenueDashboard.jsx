@@ -1,4 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Line } from 'react-chartjs-2';
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Typography,
+} from '@material-tailwind/react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import {
+  useGetRevenueForMonthQuery,
+  useGetYearlyRevenueQuery,
+  useGetDailyRevenueQuery,
+} from '../../apis/orderApi';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,84 +23,28 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import { Card, CardHeader, CardBody, Typography } from '@material-tailwind/react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { useGetRevenueForWeekQuery, useGetRevenueForMonthQuery, useGetYearlyRevenueQuery, useGetDailyRevenueQuery } from '../../apis/orderApi';
-import { startOfWeek, endOfWeek } from 'date-fns';
-
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
 const RevenueDashboard = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('week'); 
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); 
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); 
-  const [startDate, setStartDate] = useState(new Date()); 
-  const daysOfWeekMapper = {
-    1: 'T2',
-    2: 'T3',
-    3: 'T4',
-    4: 'T5',
-    5: 'T6',
-    6: 'T7',
-    7: 'CN', 
-  };
-
-  const chartData = (data) => {
-    let labels;
-
-    if (selectedPeriod === 'week') {
-      labels = data.map(item => daysOfWeekMapper[item._id] || '');
-    } else {
-      labels = data.map(item => item._id);
-    }
-
-    return {
-      labels: labels, 
-      datasets: [
-        {
-          label: 'Doanh Thu',
-          data: data.map((item) => item.totalRevenue), 
-          borderColor: 'rgba(75,192,192,1)',
-          backgroundColor: 'rgba(75,192,192,0.2)',
-          fill: true,
-        },
-      ],
-    };
-  };
-
-  const handlePeriodChange = (e) => {
-    setSelectedPeriod(e.target.value);
-  };
-
-  const handleYearChange = (e) => {
-    setSelectedYear(e.target.value); 
-  };
-
-  const handleMonthChange = (e) => {
-    setSelectedMonth(e.target.value); 
-  };
-
-  const handleDateChange = (date) => {
-    setStartDate(date); 
-  };
-
-  const startOfWeekDate = startOfWeek(startDate, { weekStartsOn: 1 }); 
-  const endOfWeekDate = endOfWeek(startDate, { weekStartsOn: 1 }); 
+  const [selectedPeriod, setSelectedPeriod] = useState('day'); // Mặc định là "Ngày"
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [startDate, setStartDate] = useState(new Date()); // Ngày hiện tại
 
   const {
-    data: weeklyData = [],
-    error: weeklyError,
-    isLoading: weeklyLoading,
-  } = useGetRevenueForWeekQuery({ startDate: startOfWeekDate.toISOString(), endDate: endOfWeekDate.toISOString() }, { skip: selectedPeriod !== 'week' });
+    data: dailyData,
+    error: dailyError,
+    isLoading: dailyLoading,
+  } = useGetDailyRevenueQuery(startDate.toISOString(), {
+    skip: selectedPeriod !== 'day',
+  });
 
   const {
     data: monthlyData = [],
     error: monthlyError,
     isLoading: monthlyLoading,
   } = useGetRevenueForMonthQuery(
-    { month: Number(selectedMonth) + 1, year: selectedYear },  
+    { month: Number(selectedMonth) + 1, year: selectedYear },
     { skip: selectedPeriod !== 'month' }
   );
 
@@ -96,18 +54,46 @@ const RevenueDashboard = () => {
     isLoading: yearlyLoading,
   } = useGetYearlyRevenueQuery(selectedYear, { skip: selectedPeriod !== 'year' });
 
-  const {
-    data: dailyData = [],
-    error: dailyError,
-    isLoading: dailyLoading,
-  } = useGetDailyRevenueQuery(startDate.toISOString(), { skip: selectedPeriod !== 'week' });
+  const handlePeriodChange = (e) => {
+    setSelectedPeriod(e.target.value);
+  };
+
+  const handleYearChange = (e) => {
+    setSelectedYear(e.target.value);
+  };
+
+  const handleMonthChange = (e) => {
+    setSelectedMonth(e.target.value);
+  };
+
+  const handleDateChange = (date) => {
+    setStartDate(date);
+  };
+
   const formatAmount = (amount) => {
     return new Intl.NumberFormat('vi-VN').format(amount);
   };
-  
-  const data = selectedPeriod === 'week' ? weeklyData : selectedPeriod === 'month' ? monthlyData : yearlyData;
-  const isLoading = selectedPeriod === 'week' ? weeklyLoading : selectedPeriod === 'month' ? monthlyLoading : yearlyLoading;
-  const error = selectedPeriod === 'week' ? weeklyError : selectedPeriod === 'month' ? monthlyError : yearlyError;
+
+  const data =
+    selectedPeriod === 'day'
+      ? dailyData
+      : selectedPeriod === 'month'
+        ? monthlyData
+        : yearlyData;
+
+  const isLoading =
+    selectedPeriod === 'day'
+      ? dailyLoading
+      : selectedPeriod === 'month'
+        ? monthlyLoading
+        : yearlyLoading;
+
+  const error =
+    selectedPeriod === 'day'
+      ? dailyError
+      : selectedPeriod === 'month'
+        ? monthlyError
+        : yearlyError;
 
   if (isLoading) return <p>Đang tải dữ liệu...</p>;
   if (error) return <p>Có lỗi xảy ra khi tải dữ liệu.</p>;
@@ -128,11 +114,11 @@ const RevenueDashboard = () => {
                 value={selectedPeriod}
                 onChange={handlePeriodChange}
               >
-                <option value="week">Tuần</option>
+                <option value="day">Ngày</option>
                 <option value="month">Tháng</option>
                 <option value="year">Năm</option>
               </select>
-              {selectedPeriod === 'week' && (
+              {selectedPeriod === 'day' && (
                 <div>
                   <label className="block text-sm">Ngày:</label>
                   <DatePicker
@@ -140,17 +126,16 @@ const RevenueDashboard = () => {
                     onChange={handleDateChange}
                     dateFormat="dd/MM/yyyy"
                     className="px-4 py-2 border border-gray-300 rounded-md"
-                    minDate={new Date('2022-01-01')} 
-                    showWeekNumbers
+                    minDate={new Date('2022-01-01')}
                   />
                 </div>
               )}
               {selectedPeriod === 'month' && (
-                <div className="flex flex-wrap justify-center gap-6">
-                  <div className="flex flex-col items-start">
-                    <label className="block text-sm font-medium mb-2">Năm:</label>
+                <div className="flex space-x-4">
+                  <div>
+                    <label className="block text-sm">Năm:</label>
                     <select
-                      className="w-32 px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300"
+                      className="px-4 py-2 border border-gray-300 rounded-md"
                       value={selectedYear}
                       onChange={handleYearChange}
                     >
@@ -161,10 +146,10 @@ const RevenueDashboard = () => {
                       ))}
                     </select>
                   </div>
-                  <div className="flex flex-col items-start">
-                    <label className="block text-sm font-medium mb-2">Tháng:</label>
+                  <div>
+                    <label className="block text-sm">Tháng:</label>
                     <select
-                      className="w-32 px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300"
+                      className="px-4 py-2 border border-gray-300 rounded-md"
                       value={selectedMonth}
                       onChange={handleMonthChange}
                     >
@@ -194,34 +179,74 @@ const RevenueDashboard = () => {
                 </div>
               )}
             </div>
-            <div className='pt-5'>
-              {selectedPeriod === 'week' && (
-                <Typography variant="h6" color="blue">
-                  Doanh Thu Ngày {startDate.toLocaleDateString()}: {formatAmount(dailyData[0]?.totalRevenue ?? '0')} VND
-                </Typography>
-              )}
-            </div>
           </div>
         </CardBody>
       </Card>
       <Card className="mb-8">
         <CardHeader className="bg-blue-500 text-white p-4">
           <Typography variant="h5" color="white">
-            Doanh Thu {selectedPeriod === 'week' ? 'Tuần Này' : selectedPeriod === 'month' ? 'Tháng Này' : 'Năm Này'}
+            {selectedPeriod === 'day' ? 'Doanh Thu Ngày' : selectedPeriod === 'month' ? 'Doanh Thu Tháng' : 'Doanh Thu Năm'}
           </Typography>
         </CardHeader>
         <CardBody>
-          <Typography variant="h6">
-            Tổng Doanh Thu: {formatAmount(data.reduce((acc, item) => acc + (item.totalRevenue ? Number(item.totalRevenue) : 0), 0))} VND
-          </Typography>
-          <Typography color="gray">
-            {selectedPeriod === 'week' && (
-              `(Từ ngày ${startOfWeekDate.toLocaleDateString()} đến ${endOfWeekDate.toLocaleDateString()})`
-            )}
-          </Typography>
-          <div className="mt-4">
-            <Line data={chartData(data)} />
-          </div>
+          {selectedPeriod === 'day' ? (
+            <div>
+              <Typography variant="h6" className='mb-4'>
+                Doanh Thu Ngày {startDate.toLocaleDateString()}: {formatAmount(dailyData?.data?.totalRevenue || 0)} VND
+              </Typography>
+
+              {dailyData?.data?.data.length > 0 ? (
+                <div>
+                  <Typography variant="h6">Danh sách món đã bán:</Typography>
+                  <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Tên Món</TableCell>
+                      <TableCell align="right">Số Lượng</TableCell>
+                      <TableCell align="right">Giá</TableCell>
+                      <TableCell align="right">Tổng Tiền</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {dailyData.data.data.map((item) => (
+                      <TableRow key={item.menuItem._id}>
+                        <TableCell>{item.menuItem.name}</TableCell>
+                        <TableCell align="right">{item.totalSold}</TableCell>
+                        <TableCell align="right">{formatAmount(item.menuItem.price)}</TableCell>
+                        <TableCell align="right">{formatAmount(item.menuItem.price * item.totalSold)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                </div>
+              ) : (
+                <Typography>Không có món nào được bán trong ngày này.</Typography>
+              )}
+            </div>
+          ) : (
+
+            <>
+              <Typography variant="h6">
+                Tổng Doanh Thu: {formatAmount(data.reduce((acc, item) => acc + (item.totalRevenue || 0), 0))} VND
+              </Typography>
+              <div className="mt-4">
+                <Line
+                  data={{
+                    labels: data.map((item) => item._id),
+                    datasets: [
+                      {
+                        label: 'Doanh Thu',
+                        data: data.map((item) => item.totalRevenue),
+                        borderColor: 'rgba(75,192,192,1)',
+                        backgroundColor: 'rgba(75,192,192,0.2)',
+                        fill: true,
+                      },
+                    ],
+                  }}
+                />
+              </div>
+            </>
+          )}
         </CardBody>
       </Card>
     </div>

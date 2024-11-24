@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useCreatePaymentOrderMutation } from '../apis/orderApi';
+import { useCreateOrderMutation, useCreatePaymentOrderMutation } from '../apis/orderApi';
+import { useRemoveItemFromCartMutation } from '../apis/cartApi';
 
 const CheckoutPage = () => {
     const navigate = useNavigate();
@@ -12,19 +13,19 @@ const CheckoutPage = () => {
     const [fullName, setFullName] = useState(user?.name || '');
     const [address, setAddress] = useState(user?.address || '');
     const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || '');
-    
+    const [paymentMethod, setPaymentMethod] = useState('Online');
+    const [removeFromCartApi] = useRemoveItemFromCartMutation(); 
+
     const [errorMessage, setErrorMessage] = useState('');
-    const [createPaymentOrder, { isLoading: isCreatingPayment }] = useCreatePaymentOrderMutation();
+    const [createOrder, isLoading] = useCreateOrderMutation();
 
     const handleCreatePaymentOrderLink = async () => {
         // Kiểm tra thông tin đã đầy đủ chưa
         if (!fullName || !address || !phoneNumber) {
             setErrorMessage('Vui lòng nhập đầy đủ thông tin (Tên, Địa chỉ, Số điện thoại)');
-            return; // Dừng lại không cho phép tạo đơn hàng
+            return;
         }
-        
         try {
-            const orderCode = Number(String(new Date().getTime()).slice(-6));
             const orderDataToStore = {
                 user: user._id,
                 items: selectedCartItems.map(item => ({
@@ -32,22 +33,38 @@ const CheckoutPage = () => {
                     quantity: item.quantity,
                 })),
                 totalAmount: totalAmount,
-                status: 'Pending',
-                paymentMethod: 'Credit Card',
+                paymentMethod: paymentMethod,
                 deliveryAddress: address,
-                orderCode: orderCode,
             };
-            localStorage.setItem('orderData', JSON.stringify(orderDataToStore));
-            const message = await createPaymentOrder({ totalAmount, orderCode }).unwrap();
-            if (message.data) {
-                window.location.replace(message.data.checkoutUrl);
+            console.log('payment', paymentMethod)
+            if (paymentMethod === 'Online') {
+                const message = await createOrder(orderDataToStore).unwrap();
+                const orderCode =  message.data.orderCode
+                localStorage.setItem('orderCode', orderCode);
+
+                if (message.data) {
+                    await Promise.all(orderDataToStore.items.map(async (item) => {
+                        await removeFromCartApi(item.menuItem).unwrap();
+                    }));
+                    window.location.replace(message.data.paymentLinkRes.checkoutUrl);
+                } else {
+                    navigate("/checkout?status=PAID&orderCode=" + message.data.orderCode);
+                }
             } else {
-                navigate("/checkout?status=PAID&orderCode=" + message.data.orderCode);
+                const message = await createOrder(orderDataToStore).unwrap();
+                if (message.data) {
+                    await Promise.all(orderDataToStore.items.map(async (item) => {
+                        await removeFromCartApi(item.menuItem).unwrap();
+                    }));
+                    navigate('/order/history')
+                }
+               
             }
         } catch (error) {
             console.log(error.message);
         }
     };
+
 
     return (
         <div>
@@ -111,7 +128,7 @@ const CheckoutPage = () => {
                                     <img src={item.imageUrl} alt="Product" className="w-16 h-16 rounded" />
                                     <div className="flex-1 ml-4">
                                         <p className="font-semibold">{item.name}</p>
-                                        <p className="text-gray-600 text-sm">{item.quantity}x</p>
+                                        <p className="text-gray-600 text-sm">Số lượng: {item.quantity}</p>
                                     </div>
                                     <p className="font-semibold">{(item.price * item.quantity).toLocaleString('vi-VN')}đ</p>
                                 </div>
@@ -126,9 +143,19 @@ const CheckoutPage = () => {
                                 <span>Tổng tiền</span><span>{totalAmount.toLocaleString('vi-VN')}đ</span>
                             </div>
                         </div>
-
+                        <div>
+                            <label className="flex justify-between font-semibold text-lg">Phương thức thanh toán *</label>
+                            <select
+                                value={paymentMethod}
+                                onChange={(e) => setPaymentMethod(e.target.value)}
+                                className="w-full border border-gray-300 rounded p-2 mt-1"
+                            >
+                                <option value="Online">Thanh toán Online</option>
+                                <option value="Cash">Thanh toán khi nhận hàng</option>
+                            </select>
+                        </div>
                         <button className="w-full bg-black text-white py-2 mt-4 rounded" onClick={handleCreatePaymentOrderLink}>
-                            Thanh toán
+                            Đặt hàng
                         </button>
                     </div>
                 </div>

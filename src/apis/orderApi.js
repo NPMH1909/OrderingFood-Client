@@ -6,33 +6,49 @@ export const orderApi = createApi({
     reducerPath: 'orderApi',
     baseQuery: fetchBaseQuery({
         baseUrl: URL,
-        prepareHeaders: (headers) => {
-            const token = localStorage.getItem('token');
-            if (token) {
-                headers.set('Authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
+        // prepareHeaders: (headers) => {
+        //     const token = localStorage.getItem('token');
+        //     if (token) {
+        //         headers.set('Authorization', `Bearer ${token}`);
+        //     }
+        //     return headers;
+        // },
     }),
     endpoints: (builder) => ({
         createOrder: builder.mutation({
             query: (orderData) => ({
                 url: '/create',
                 method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                }, 
                 body: orderData,
             }),
         }),
+        handlePaymentCallback: builder.mutation({
+            query: (orderCode) => ({
+              url: '/update-onlineorder', // Đường dẫn đến endpoint xử lý callback
+              method: 'POST',
+              body: orderCode, // Dữ liệu sẽ được gửi đến server (orderCode, paymentStatus, v.v.)
+            }),
+          }),
         createPaymentOrder: builder.mutation({
             query: (paymentData) => ({
                 url: '/create-link', // Đường dẫn API
                 method: 'POST',
-                body: paymentData, // Dữ liệu thanh toán
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                }, 
+                body: paymentData,
             }),
         }),
         getAllOrderByUser: builder.query({
             query: ({ page, limit }) => ({
                 url: '/user/getall',
-                params: { page, limit }
+                params: { page, limit },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                }, 
             })
         }),
         getAllOrder: builder.query({
@@ -48,9 +64,9 @@ export const orderApi = createApi({
             query: ({ id, status }) => ({
                 url: `/orders/${id}`,
                 method: 'PUT',
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-                }, 
+                // headers: {
+                //     Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+                // }, 
                 body: { status },
             }),
         }),
@@ -88,5 +104,6 @@ export const {
     useGetRevenueForWeekQuery,
     useGetRevenueForMonthQuery,
     useGetDailyRevenueQuery,
-    useGetYearlyRevenueQuery
+    useGetYearlyRevenueQuery,
+    useHandlePaymentCallbackMutation
 } = orderApi;

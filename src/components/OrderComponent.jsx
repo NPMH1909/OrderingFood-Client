@@ -1,7 +1,9 @@
-import React from 'react'
-import "../css/components/order.css"
-const OrderComponent = ({ order }) => {
+import React from 'react';
+import "../css/components/order.css";
+import { Button } from 'antd';
 
+const OrderComponent = ({ order, handleCancelOrder }) => {
+    
     return (
         <div>
             <div className='container'>
@@ -41,13 +43,19 @@ const OrderComponent = ({ order }) => {
                             </span>
                         </div>
                     ))}
-                </div>
+                    {order.status === 'Pending' && order.isPayment === 'UNPAID' && (
+                    <Button
+                        className="ml-auto flex bg-red-400 text-white"  // Sử dụng ml-auto để đẩy nút sang bên phải
+                        onClick={() => handleCancelOrder(order._id)}  // Gọi hàm hủy khi nhấn nút
+                    >
+                        Hủy đơn hàng
+                    </Button>
+                )}
+                </div>                
 
             </div>
-
         </div>
-    )
+    );
+};
 
-}
-
-export default OrderComponent
+export default OrderComponent;

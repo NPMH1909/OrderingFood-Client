@@ -25,6 +25,8 @@ const TABS = [
   { label: "Pending", value: "Pending" },
   { label: "Delivery", value: "Delivery" },
   { label: "Success", value: "Success" },
+  { label: "Cancelled", value: "Cancelled" },
+
 ];
 
 const OrderManager = () => {
@@ -81,9 +83,10 @@ const OrderManager = () => {
       console.error("Lỗi khi cập nhật trạng thái:", err);
     }
   };
+  //currentPage, searchQuery, selectedDate, handleUpdateStatus
   useEffect(() => {
     refetch();
-  }, [statusFilter, currentPage, searchQuery, selectedDate, handleUpdateStatus, refetch]);
+  }, [statusFilter, currentPage, searchQuery, selectedDate, orders]);
 
   const handleViewDetails = (order) => {
     setSelectedOrder(order);
@@ -270,7 +273,10 @@ const OrderManager = () => {
                 <p className="font-semibold mr-2">Trạng thái:</p>
                 <p>{selectedOrder?.status}</p>
               </div>
-
+              <div className="flex mb-1">
+                <p className="font-semibold mr-2">Trạng thái:</p>
+                <p>{selectedOrder?.isPayment}</p>
+              </div>
               <p className="font-semibold mr-2"> Sản phẩm:</p>
               <table className="w-full mt-4 table-auto border-collapse border border-gray-300">
                 <thead>

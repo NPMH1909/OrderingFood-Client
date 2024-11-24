@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useGetCartQuery } from '../apis/cartApi';
 import CartItemComponent from '../components/CartItemComponent';
+import { useHandlePaymentCallbackMutation } from '../apis/orderApi'; // Import mutation
 
 const CartPage = () => {
   const { data: cartItems, isLoading, isError } = useGetCartQuery();
   const [total, setTotal] = useState(0);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false); // State quản lý modal
-  const navigate = useNavigate();
+  // const [handlePaymentCallback] = useHandlePaymentCallbackMutation(); // Hook để gọi mutation
 
+  const location = useLocation();
+  const navigate = useNavigate();
   useEffect(() => {
     calculateTotal(selectedItems);
   }, [selectedItems]);
@@ -42,7 +45,15 @@ const CartPage = () => {
       navigate('/checkout', { state: { selectedCartItems: selectedItems, totalAmount: total } });
     }
   };
+  // useEffect(() => {
+  //   const orderCode = localStorage.getItem('orderCode');  // Lấy orderCode từ localStorage
 
+  //   if (orderCode) {
+  //     console.log("orderCode", orderCode)
+  //     handlePaymentCallback({orderCode})
+  //     localStorage.removeItem("orderCode")
+  //   }
+  // }, [location.search]);
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error loading cart items.</p>;
 
@@ -92,6 +103,7 @@ const CartPage = () => {
         onClose={() => setIsModalOpen(false)} // Đóng modal
         message="Vui lòng chọn ít nhất một sản phẩm trước khi thanh toán."
       />
+     
     </div>
   );
 };

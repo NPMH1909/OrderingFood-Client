@@ -1,51 +1,74 @@
 import React, { useState, useEffect, useRef } from "react";
 import Order from "../components/OrderComponent";
 import '../css/pages/orderHistory.css';
-import { useGetAllOrderByUserQuery } from "../apis/orderApi";
+import { useGetAllOrderByUserQuery, useHandlePaymentCallbackMutation } from "../apis/orderApi";
 import PaginationComponent from "../components/PaginationComponent";
-import { useCreateOrderMutation } from '../apis/orderApi';
-import { useRemoveItemFromCartMutation } from '../apis/cartApi'; 
+import { useLocation } from "react-router-dom";
+import { useUpdateOrderStatusMutation } from "../apis/orderApi";  // Import mutation để cập nhật trạng thái đơn hàng
+
 const OrderHistory = () => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [createOrder] = useCreateOrderMutation();
-    const [removeFromCartApi] = useRemoveItemFromCartMutation(); 
-    const hasRun = useRef(false); 
-    const { data, isLoading, error, refetch } = useGetAllOrderByUserQuery({ page: currentPage, limit: 5 });
+    const [callbackCompleted, setCallbackCompleted] = useState(false);
+    const [handlePaymentCallback] = useHandlePaymentCallbackMutation();
+    const [updateOrderStatus] = useUpdateOrderStatusMutation();
+
+    // Không query cho đến khi callback hoàn thành (nếu có callback)
+    const shouldFetch = !localStorage.getItem('orderCode') || callbackCompleted;
+    
+    const { data, isLoading, error, refetch } = useGetAllOrderByUserQuery(
+        { page: currentPage, limit: 5 },
+        { skip: !shouldFetch }
+    );
+
+    const location = useLocation();
 
     useEffect(() => {
-        const handleCreateOrder = async () => {
-            try {
-                const storedOrderData = JSON.parse(localStorage.getItem('orderData'));
-                console.log(storedOrderData);
-                if (storedOrderData) {
-                    const response = await createOrder(storedOrderData).unwrap();
-                    if (response.data) {
-                        await Promise.all(storedOrderData.items.map(async (item) => {
-                            await removeFromCartApi(item.menuItem).unwrap(); 
-                        }));
-                    }
-                    localStorage.removeItem('orderData'); 
-                    refetch()
+        const orderCode = localStorage.getItem('orderCode');
+        
+        if (orderCode) {
+            const processCallback = async () => {
+                try {
+                    await handlePaymentCallback({ orderCode }).unwrap();
+                    localStorage.removeItem('orderCode');
+                    setCallbackCompleted(true);
+                } catch (error) {
+                    console.error("Error processing payment:", error);
+                    localStorage.removeItem('orderCode');
+                    setCallbackCompleted(true);
                 }
-            } catch (error) {
-                console.log(error.message);
-            }
-        };
+            };
 
-        if (!hasRun.current) {
-            handleCreateOrder();
-            hasRun.current = true; 
+            processCallback();
+        } else {
+            // Nếu không có orderCode, đánh dấu là đã hoàn thành
+            setCallbackCompleted(true);
         }
-    }, [createOrder, removeFromCartApi, refetch]);
+    }, [handlePaymentCallback]);
 
-    
+    // Effect riêng để refetch khi callback hoàn thành
+    useEffect(() => {
+        if (callbackCompleted) {
+            refetch();
+        }
+    }, [callbackCompleted, refetch]);
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [currentPage]);
 
-    if (isLoading) return <p>Loading...</p>;
+    const handleCancelOrder = async (orderId) => {
+        try {
+            await updateOrderStatus({ id: orderId, status: "Cancelled" }).unwrap();
+            await refetch();
+        } catch (error) {
+            console.error("Error while cancelling order:", error);
+        }
+    };
+
+    // Loading state khi đang xử lý callback hoặc đang fetch data
+    if (!callbackCompleted || isLoading) return <p>Loading...</p>;
     if (error) return <p>Error: {error.message}</p>;
-    
+
     const orderData = data?.data || [];
     const totalPages = data?.info?.totalPages;
 
@@ -54,18 +77,20 @@ const OrderHistory = () => {
             <h1 className="text-2xl font-semibold text-black">Lịch sử đơn hàng</h1>
             <div>
                 <div className="mt-4 text-right text-sm text-gray-700 pr-48">
-                    {totalPages>0 && (
+                    {totalPages > 0 && (
                         <p>Trang {currentPage} / {totalPages}</p>
                     )}
                 </div>
                 {orderData.length > 0 ? (
                     orderData.map((order) => (
-                        <Order key={order.id} order={order} />
+                        <div key={order.id} className="order-item">
+                            <Order order={order} handleCancelOrder={handleCancelOrder} />
+                        </div>
                     ))
                 ) : (
-                   <div className="h-[80vh]">
-                     <p className="flex justify-center">Chưa có đơn hàng</p>
-                   </div>
+                    <div className="h-[80vh]">
+                        <p className="flex justify-center">Chưa có đơn hàng</p>
+                    </div>
                 )}
             </div>
             {orderData?.length > 0 && (
