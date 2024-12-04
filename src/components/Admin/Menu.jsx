@@ -1,35 +1,36 @@
+useGetCategoryQuery
 import {
   Box, Button, Container, Dialog, DialogActions, DialogContent,
   DialogTitle, Grid, MenuItem, Snackbar, TextField, Typography
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import DishCard from './DishCard';
-import { useAddItemMutation, useDeleteItemMutation, useGetItemByCategoryQuery, useGetMenuQuery, useUpdateItemMutation } from '../../apis/menuItemApi';
+import { useAddItemMutation, useDeleteItemMutation, useGetCategoryQuery, useGetItemByCategoryForAdminQuery, useGetMenuForAdminQuery, useUpdateItemMutation } from '../../apis/menuItemApi';
 import SelectBoxComponent from '../SelectBoxComponent';
 import SearchComponent from '../SearchComponent';
 import PaginationComponent from '../PaginationComponent';
 
-const categories = [
-  "Đồ ăn Châu Âu",
-  "Đồ ăn nướng",
-  "Đồ ăn truyền thống Việt Nam",
-  "Đồ ăn tráng miệng",
-];
-
 const Menu = () => {
+
   const [currentPage, setCurrentPage] = useState(1);
   // const searchTerm = useSelector((state) => state.search.term);
   const [searchTerm, setSearchTerm] = useState('')
-  const [category, setCategory] = useState('all');
   const [openDialog, setOpenDialog] = useState(false);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
   const [dishToDelete, setDishToDelete] = useState(null);
+  const [category, setCategory] = useState('all');
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState('');
+
+  const { data: categoriesData, error: categoryError, isLoading: categoryLoading, refetch: refetchCategories  } = useGetCategoryQuery();
+  const categories = categoriesData && categoriesData.data ? categoriesData.data : [];
+
   const [newDish, setNewDish] = useState({
     id: null,
     name: "",
     description: "",
     price: 0,
-    quantity: 0,
+    isAvailable: true,
     image: null,
     category: "",
   });
@@ -38,8 +39,8 @@ const Menu = () => {
   }, [searchTerm, category]);
 
   const { data, error, isLoading, refetch } = category === 'all'
-    ? useGetMenuQuery({ searchTerm, page: currentPage, limit: 16 })
-    : useGetItemByCategoryQuery({ category, searchTerm, page: currentPage, limit: 16 });
+    ? useGetMenuForAdminQuery({ searchTerm, page: currentPage, limit: 16 })
+    : useGetItemByCategoryForAdminQuery({ category, searchTerm, page: currentPage, limit: 16 });
   const [addItem] = useAddItemMutation();
   const [updateItem] = useUpdateItemMutation();
   const [deleteItem] = useDeleteItemMutation();
@@ -54,7 +55,7 @@ const Menu = () => {
       name: "",
       description: "",
       price: 0,
-      quantity: 0,
+      isAvailable: true,
       image: null,
       category: "",
     });
@@ -67,19 +68,34 @@ const Menu = () => {
       name: dish.name,
       description: dish.description,
       price: dish.price,
-      quantity: dish.quantity,
+      isAvailable: dish.isAvailable,
       image: null,
       category: dish.category,
     });
+    // Kiểm tra xem category có trong danh sách không
+    if (!categories.includes(dish.category)) {
+      setShowCustomCategory(true);
+      setCustomCategory(dish.category);
+      setNewDish(prev => ({ ...prev, category: 'other' }));
+    } else {
+      setShowCustomCategory(false);
+      setCustomCategory('');
+    }
     setOpenDialog(true);
   };
-
   const handleDeleteClick = (dish) => {
     setDishToDelete(dish);
     setConfirmDeleteDialog(true);
   };
-
   const handleInputChange = (field, value) => {
+    if (field === 'category') {
+      if (value === 'other') {
+        setShowCustomCategory(true);
+      } else {
+        setShowCustomCategory(false);
+        setCustomCategory('');
+      }
+    }
     setNewDish({ ...newDish, [field]: value });
   };
 
@@ -97,20 +113,30 @@ const Menu = () => {
     setSnackbarSeverity(severity);
     setSnackbarOpen(true);
   };
+
   useEffect(() => {
     window.scrollTo(0, 0);
-}, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm]);
+
   const handleSaveDish = async () => {
     try {
+      const finalCategory = newDish.category === 'other' ? customCategory : newDish.category;
+      const dishToSave = {
+        ...newDish,
+        category: finalCategory
+      };
+
       if (newDish.id) {
-        await updateItem({ id: newDish.id, menuItemData: newDish }).unwrap();
+        await updateItem({ id: newDish.id, menuItemData: dishToSave }).unwrap();
         showSnackbar("Cập nhật món ăn thành công!", "success");
       } else {
-        await addItem({ menuItemData: newDish }).unwrap();
+        await addItem({ menuItemData: dishToSave }).unwrap();
         showSnackbar("Thêm món ăn thành công!", "success");
       }
       setOpenDialog(false);
+      refetchCategories();
       refetch();
+
     } catch (err) {
       console.error("Failed to save dish:", err);
       showSnackbar("Có lỗi xảy ra, vui lòng thử lại!", "error");
@@ -219,13 +245,17 @@ const Menu = () => {
           />
           <TextField
             margin="dense"
-            label="Số lượng"
-            type="number"
+            select
+            label="Trạng thái có sẵn"
             fullWidth
             variant="outlined"
-            value={newDish.quantity}
-            onChange={(e) => handleInputChange("quantity", parseInt(e.target.value, 10))}
-          />
+            value={newDish.isAvailable ? "Có" : "Không"}  // Hiển thị dạng văn bản
+            onChange={(e) => handleInputChange("isAvailable", e.target.value === "Có")} // Chuyển sang boolean
+          >
+            <MenuItem value="Có">Có</MenuItem>
+            <MenuItem value="Không">Không</MenuItem>
+          </TextField>
+
           <input
             type="file"
             accept="image/*"
@@ -246,13 +276,30 @@ const Menu = () => {
                 {category}
               </MenuItem>
             ))}
+            <MenuItem value="other">Khác</MenuItem>
+
           </TextField>
+          {showCustomCategory && (
+            <TextField
+              margin="dense"
+              label="Nhập loại món ăn mới"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={customCategory}
+              onChange={(e) => setCustomCategory(e.target.value)}
+            />
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)} color="primary">
             Hủy
           </Button>
-          <Button onClick={handleSaveDish} color="primary">
+          <Button 
+            onClick={handleSaveDish} 
+            color="primary"
+            disabled={showCustomCategory && !customCategory.trim()}
+          >
             {newDish.id ? "Cập nhật" : "Thêm"}
           </Button>
         </DialogActions>

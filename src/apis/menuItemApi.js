@@ -12,13 +12,19 @@ export const menuItemApi = createApi({
                 params: { page, limit, searchTerm },
             }),
         }),
+        getMenuForAdmin: builder.query({
+            query: ({ searchTerm, page, limit }) => ({
+                url: '/admin/getall',
+                params: { page, limit, searchTerm },
+            }),
+        }),
         addItem: builder.mutation({
             query: ({ menuItemData }) => {
                 const formData = new FormData();
                 formData.append("name", menuItemData.name);
                 formData.append("description", menuItemData.description);
                 formData.append("price", menuItemData.price);
-                formData.append("quantity", menuItemData.quantity);
+                formData.append("isAvailable", menuItemData.isAvailable);
                 formData.append("category", menuItemData.category);
                 if (menuItemData.image) {
                     formData.append("image", menuItemData.image); 
@@ -39,7 +45,7 @@ export const menuItemApi = createApi({
                 formData.append("name", menuItemData.name);
                 formData.append("description", menuItemData.description);
                 formData.append("price", menuItemData.price);
-                formData.append("quantity", menuItemData.quantity);
+                formData.append("isAvailable", menuItemData.isAvailable);
                 formData.append("category", menuItemData.category);
                 if (menuItemData.image) {
                     formData.append("image", menuItemData.image); 
@@ -73,6 +79,12 @@ export const menuItemApi = createApi({
                 params: { category, searchTerm, page, limit },
             }),
         }),
+        getItemByCategoryForAdmin: builder.query({
+            query: ({ category, searchTerm, page, limit }) => ({
+                url: '/admin/getallbycategory',
+                params: { category, searchTerm, page, limit },
+            }),
+        }),
         getTopSeller: builder.query({
             query: () => '/best-seller'
         }),
@@ -91,4 +103,6 @@ export const {
     useAddItemMutation,
     useUpdateItemMutation,
     useDeleteItemMutation,
+    useGetMenuForAdminQuery,
+    useGetItemByCategoryForAdminQuery
 } = menuItemApi;

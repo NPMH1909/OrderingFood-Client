@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Card, CardHeader, CardBody, CardFooter, Typography, Button } from "@material-tailwind/react";
 import { useAddItemToCartMutation } from '../apis/cartApi'; // Điều chỉnh đường dẫn nếu cần
 
-const CardComponent = ({ id, name, image, description, price }) => {
+const CardComponent = ({ id, name, image, description, price, isAvailable }) => {
   const [addToCart, { isLoading }] = useAddItemToCartMutation(); // Sử dụng hook mutation
   const [showNotification, setShowNotification] = useState(false); // State để quản lý hiển thị thông báo
 
   const handleAddToCart = async () => {
     try {
+      if (!isAvailable) return; // Nếu hết hàng, không thực hiện thêm vào giỏ hàng
       await addToCart({ productId: id, quantity: 1 }).unwrap();
       setShowNotification(true); // Hiển thị thông báo
       setTimeout(() => {
@@ -35,10 +36,12 @@ const CardComponent = ({ id, name, image, description, price }) => {
           onClick={handleAddToCart}
           ripple={false}
           fullWidth={true}
-          className="bg-blue-gray-900/10 text-blue-gray-900 shadow-none hover:scale-105 hover:shadow-none focus:scale-105 focus:shadow-none active:scale-100"
-          disabled={isLoading} 
+          className={`${
+            isAvailable ? 'bg-blue-gray-900/10 text-blue-gray-900 hover:scale-105' : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+          } shadow-none hover:shadow-none focus:scale-105 focus:shadow-none active:scale-100`}
+          disabled={isLoading || !isAvailable} 
         >
-          {isLoading ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
+          {isLoading ? 'Đang thêm...' : isAvailable ? 'Thêm vào giỏ hàng' : 'Hết hàng'}
         </Button>
       </CardFooter>
 

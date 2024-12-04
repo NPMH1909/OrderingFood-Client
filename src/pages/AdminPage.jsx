@@ -19,7 +19,7 @@ const admin_sidebar = [
             { label: "Menu", elements: <Menu /> },
             { label: "Đơn hàng", elements: <OrderManager /> },
             { label: "Doanh thu", elements: <RevenueDashboard/> },
-            { label: "Phản hổi", elements: <Feedback/> },
+            { label: "Phản hồi", elements: <Feedback/> },
         ],
     },
 ];

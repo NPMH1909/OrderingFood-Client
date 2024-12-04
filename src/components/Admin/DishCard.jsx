@@ -55,16 +55,25 @@ const DishCard = ({ dish, onEdit, onDelete }) => {
         <Box className="card-price" sx={{ height: "30px" }}>
           <Typography
             variant="body2"
-            color="primary"
-            sx={{ fontWeight: "bold" }}
+            color="text.secondary"
           >
             Giá: {dish.price.toLocaleString('vi-VN')} VND
           </Typography>
         </Box>
         <Box className="card-quantity" sx={{ height: "30px" }}>
-          {/* <Typography variant="body2" color="text.secondary">
-            Quantity: {dish.quantity}
-          </Typography> */}
+          <Typography variant="body2"
+            color="primary"
+            sx={{ fontWeight: "bold" }}>
+            Trạng thái: {dish?.isAvailable ? "Còn hàng" : "Hết hàng"}
+          </Typography>
+        </Box>
+        <Box className="card-price" sx={{ height: "30px" }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+          >
+            Đã bán: {dish.soldQuantity.toLocaleString('vi-VN')}
+          </Typography>
         </Box>
       </CardContent>
       <CardActions className="card-actions">

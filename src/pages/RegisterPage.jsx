@@ -10,25 +10,48 @@ const RegisterPage = () => {
         password: '',
         retypePassword: '',
     });
+    const [errors, setErrors] = useState({}); // Lưu trạng thái lỗi
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: '' })); // Xóa lỗi khi người dùng sửa dữ liệu
+    };
+
+    const validateForm = () => {
+        const newErrors = {};
+        if (!formData.email) {
+            newErrors.email = 'Email không được để trống.';
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = 'Email không hợp lệ.';
+        }
+        if (!formData.password) {
+            newErrors.password = 'Mật khẩu không được để trống.';
+        } else if (formData.password.length < 6) {
+            newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự.';
+        }
+        if (!formData.retypePassword) {
+            newErrors.retypePassword = 'Vui lòng nhập lại mật khẩu.';
+        } else if (formData.retypePassword !== formData.password) {
+            newErrors.retypePassword = 'Mật khẩu nhập lại không khớp.';
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) return;
+
         try {
             const response = await register(formData).unwrap();
-            
             localStorage.setItem('registerToken', response?.data);
-            console.log(response.data); // Kiểm tra phản hồi từ API
-            if (response) {
-                navigate('/verify-code'); // Điều hướng đến trang nhập mã xác minh
-            }
+            navigate('/verify-code'); // Điều hướng đến trang nhập mã xác minh
         } catch (error) {
-            console.error('Registration failed:', error);
-            alert(error?.data?.message || 'An error occurred during registration.');
+            setErrors((prev) => ({
+                ...prev,
+                server: error?.data?.message || 'Có lỗi xảy ra trong quá trình đăng ký.',
+            }));
         }
     };
 
@@ -60,6 +83,9 @@ const RegisterPage = () => {
                                         className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:border-indigo-500 focus:ring focus:ring-indigo-500"
                                         placeholder="Email"
                                     />
+                                    {errors.email && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                                    )}
                                 </div>
 
                                 <div className="mb-4">
@@ -72,6 +98,9 @@ const RegisterPage = () => {
                                         className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:border-indigo-500 focus:ring focus:ring-indigo-500"
                                         placeholder="Password"
                                     />
+                                    {errors.password && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                                    )}
                                 </div>
 
                                 <div className="mb-4">
@@ -84,12 +113,25 @@ const RegisterPage = () => {
                                         className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:border-indigo-500 focus:ring focus:ring-indigo-500"
                                         placeholder="Confirm Password"
                                     />
+                                    {errors.retypePassword && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {errors.retypePassword}
+                                        </p>
+                                    )}
                                 </div>
+
+                                {errors.server && (
+                                    <p className="text-red-500 text-sm mt-1 text-center">
+                                        {errors.server}
+                                    </p>
+                                )}
 
                                 <div className="text-center mb-4">
                                     <button
                                         type="submit"
-                                        className={`w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-2 rounded-md transition duration-200 hover:shadow-lg ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-2 rounded-md transition duration-200 hover:shadow-lg ${
+                                            isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
                                         disabled={isLoading}
                                     >
                                         {isLoading ? 'Registering...' : 'Register'}

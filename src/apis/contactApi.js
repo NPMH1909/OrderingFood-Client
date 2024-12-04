@@ -16,8 +16,9 @@ export const contactApi = createApi({
     }),
     // Thêm endpoint getAllContacts để lấy tất cả liên hệ
     getAllContacts: builder.query({
-      query: () => ({
+      query: ({page = 1, limit = 10, date }) => ({
         url: '/getall',
+        params: {page, limit, date },
         method: 'GET',
       }),
     }),

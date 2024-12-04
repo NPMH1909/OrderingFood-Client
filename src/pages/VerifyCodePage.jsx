@@ -5,26 +5,51 @@ import { useCreateUserMutation } from '../apis/userApi';
 const VerifyCodePage = () => {
     const navigate = useNavigate();
     const [verificationCode, setVerificationCode] = useState('');
+    const [errors, setErrors] = useState({});
+    const [successMessage, setSuccessMessage] = useState('');
     const [createUser, { isLoading }] = useCreateUserMutation();
+
+    // Hàm validate
+    const validateForm = () => {
+        const newErrors = {};
+        if (!verificationCode.trim()) {
+            newErrors.verificationCode = 'Mã xác minh không được để trống.';
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem('registerToken'); 
-        console.log('token', token)
+        if (!validateForm()) return; // Dừng nếu có lỗi
+        setErrors({}); // Xóa lỗi trước đó
+
+        const token = localStorage.getItem('registerToken');
         try {
             const response = await createUser({ token, verificationCode }).unwrap();
-            console.log(response); 
-            alert('Account created successfully!');
+            setSuccessMessage('Tài khoản được tạo thành công!');
             localStorage.removeItem('registerToken');
-            navigate('/login');
+            setTimeout(() => {
+                setSuccessMessage('');
+                navigate('/login');
+            }, 3000);
         } catch (error) {
             console.error('Verification failed:', error);
-            alert(error?.data?.message || 'Invalid verification code.');
+            setErrors({ global: 'Mã xác minh không hợp lệ.' });
         }
     };
+
     return (
         <section className="h-screen bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">
+            
             <div className="max-w-5xl w-full p-10">
+            {successMessage && (
+                                <div className="text-green-500 text-lg text-center my-4">
+                                    {successMessage}
+                                </div>
+                            )}
                 <div className="bg-white rounded-lg shadow-lg dark:bg-neutral-800">
+                
                     <div className="flex flex-col lg:flex-row">
                         <div className="px-4 py-6 lg:w-6/12 m-2">
                             <div className="text-center">
@@ -46,7 +71,10 @@ const VerifyCodePage = () => {
                                         placeholder="Verification code"
                                         value={verificationCode}
                                         onChange={(e) => setVerificationCode(e.target.value)}
-                                        />
+                                    />
+                                    {errors.verificationCode && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.verificationCode}</p>
+                                    )}
                                 </div>
 
                                 <div className="text-center mb-4">
@@ -56,15 +84,20 @@ const VerifyCodePage = () => {
                                         disabled={isLoading}
                                         className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold py-2 rounded-md transition duration-200 hover:shadow-lg"
                                     >
-                                        {isLoading ? 'Submiting...' : 'Submit'}
+                                        {isLoading ? 'Submitting...' : 'Submit'}
                                     </button>
+                                    {errors.global && (
+                                        <p className="text-red-500 text-sm mt-2">{errors.global}</p>
+                                    )}
                                 </div>
-
                             </form>
+
                             
-                            
+
                             <div className="flex items-center justify-between">
-                                <span>Do have an account? <span
+                                <span>
+                                    Do have an account?{' '}
+                                    <span
                                         onClick={() => navigate('/login')}
                                         className="text-blue-600 hover:underline cursor-pointer"
                                     >
@@ -77,7 +110,7 @@ const VerifyCodePage = () => {
                         <div
                             className="hidden lg:flex items-center rounded-b-lg lg:w-6/12 lg:rounded-r-lg lg:rounded-bl-none"
                             style={{
-                                background: "linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)",
+                                background: 'linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)',
                             }}
                         >
                             <div className="px-4 py-6 text-white">
@@ -92,6 +125,6 @@ const VerifyCodePage = () => {
             </div>
         </section>
     );
-}
+};
 
-export default VerifyCodePage
+export default VerifyCodePage;

@@ -12,10 +12,8 @@ const ForgotPassword = () => {
             // Call the forgotPassword mutation
             await forgotPassword(email).unwrap();
             // Handle success (e.g., show success message)
-            alert('A password reset email has been sent.');
         } catch (err) {
             // Handle error (e.g., show error message)
-            alert(`Error: ${error?.message || 'An error occurred'}`);
         }
     };
     return (

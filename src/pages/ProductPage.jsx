@@ -19,7 +19,7 @@ const ProductPage = () => {
     }, [currentPage, searchTerm]);
     const { data, error, isLoading } = category === 'all'
         ? useGetMenuQuery({ searchTerm, page: currentPage, limit: 8 })
-        : useGetItemByCategoryQuery({ category, searchTerm, page: currentPage, limit: 4 });
+        : useGetItemByCategoryQuery({ category, searchTerm, page: currentPage, limit: 8 });
 
     if (isLoading) return <p>Loading...</p>;
     if (error) return <p>Error: {error.message}</p>;
@@ -61,6 +61,7 @@ const ProductPage = () => {
                                         image={item.image.url}
                                         price={item.price}
                                         description={item.description}
+                                        isAvailable={item.isAvailable}
                                     // addToCart={addToCart} // Truyền hàm thêm mặt hàng vào giỏ hàng
                                     />
                                 </div>

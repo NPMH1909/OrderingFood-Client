@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useGetCartQuery } from '../apis/cartApi';
 import CartItemComponent from '../components/CartItemComponent';
-import { useHandlePaymentCallbackMutation } from '../apis/orderApi'; // Import mutation
 
 const CartPage = () => {
   const { data: cartItems, isLoading, isError } = useGetCartQuery();
   const [total, setTotal] = useState(0);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false); // State quản lý modal
-  // const [handlePaymentCallback] = useHandlePaymentCallbackMutation(); // Hook để gọi mutation
-
-  const location = useLocation();
   const navigate = useNavigate();
+
   useEffect(() => {
     calculateTotal(selectedItems);
   }, [selectedItems]);
@@ -23,20 +20,36 @@ const CartPage = () => {
   };
 
   const handleItemCheck = (item, isChecked) => {
-    if (isChecked) {
-      setSelectedItems((prev) => [...prev, item]);
-    } else {
-      setSelectedItems((prev) => prev.filter((selected) => selected.id !== item.id));
-    }
+    setSelectedItems((prev) => {
+      if (isChecked) {
+        return [...prev, item]; // Thêm item nếu được chọn
+      } else {
+        return prev.filter((selected) => selected.item !== item.item); // Loại bỏ item nếu bỏ chọn
+      }
+    });
   };
 
+
   const handleQuantityChange = (updatedItem, newQuantity) => {
-    setSelectedItems((prevSelected) =>
-      prevSelected.map((item) =>
-        item.id === updatedItem.id ? { ...item, quantity: newQuantity } : item
-      )
-    );
+    setSelectedItems((prevSelected) => {
+      const updatedSelected = prevSelected.map((item) =>
+        item.item === updatedItem.item
+          ? { ...item, quantity: newQuantity }
+          : item
+      );
+      calculateTotal(updatedSelected);
+      return updatedSelected.filter((item) => item.quantity > 0); // Loại bỏ item có quantity = 0
+    });
   };
+
+
+  useEffect(() => {
+    // Đồng bộ selectedItems với cartItems sau khi xóa
+    const updatedSelectedItems = selectedItems.filter((selected) =>
+      cartItems?.data?.items.some((cartItem) => cartItem.item === selected.item)
+    );
+    setSelectedItems(updatedSelectedItems);
+  }, [cartItems]); // Chạy lại mỗi khi cartItems thay đổi
 
   const handleCheckout = () => {
     if (selectedItems.length === 0) {
@@ -45,15 +58,7 @@ const CartPage = () => {
       navigate('/checkout', { state: { selectedCartItems: selectedItems, totalAmount: total } });
     }
   };
-  // useEffect(() => {
-  //   const orderCode = localStorage.getItem('orderCode');  // Lấy orderCode từ localStorage
-
-  //   if (orderCode) {
-  //     console.log("orderCode", orderCode)
-  //     handlePaymentCallback({orderCode})
-  //     localStorage.removeItem("orderCode")
-  //   }
-  // }, [location.search]);
+  console.log('selected', selectedItems)
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error loading cart items.</p>;
 
@@ -62,38 +67,38 @@ const CartPage = () => {
       <main className="w-[80%] mx-auto my-8">
         <h2 className="text-2xl font-bold mb-6">My Cart</h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-  <div className="col-span-2">
-    {cartItems?.data?.items.length > 0 ? (
-      cartItems.data.items.map((item, index) => (
-        <CartItemComponent
-          key={index}
-          item={item}
-          onQuantityChange={handleQuantityChange}
-          onCheckChange={handleItemCheck}
-        />
-      ))
-    ) : (
-      <p>Your cart is empty.</p>
-    )}
-  </div>
+          <div className="col-span-2">
+            {cartItems?.data?.items.length > 0 ? (
+              cartItems.data.items.map((item, index) => (
+                <CartItemComponent
+                  key={item.item}
+                  item={item}
+                  onQuantityChange={handleQuantityChange}
+                  onCheckChange={handleItemCheck}
+                />
+              ))
+            ) : (
+              <p>Giỏ hàng hiện đang trống.</p>
+            )}
+          </div>
 
-  {/* Chỉ hiển thị phần Order Summary nếu giỏ hàng không trống */}
-  {cartItems?.data?.items.length > 0 && (
-    <div className="bg-white p-4 shadow-md rounded sticky top-20 h-fit">
-      <h3 className="text-lg font-semibold mb-4">Đơn hàng</h3>
-      <div className="text-sm text-gray-700">
-        {/* <p className="flex justify-between">Shipping cost <span>TBD</span></p>
+          {/* Chỉ hiển thị phần Order Summary nếu giỏ hàng không trống */}
+          {cartItems?.data?.items.length > 0 && (
+            <div className="bg-white p-4 shadow-md rounded sticky top-20 h-fit">
+              <h3 className="text-lg font-semibold mb-4">Đơn hàng</h3>
+              <div className="text-sm text-gray-700">
+                {/* <p className="flex justify-between">Shipping cost <span>TBD</span></p>
         <p className="flex justify-between">Discount <span>-$0</span></p>
         <p className="flex justify-between">Tax <span>TBD</span></p> */}
-        <hr className="my-2" />
-        <p className="flex justify-between font-semibold">Tổng tiền<span>{total.toLocaleString('vi-VN')}đ</span></p>
-      </div>
-      <button className="w-full bg-black text-white py-2 mt-4 rounded" onClick={handleCheckout}>
-        Checkout
-      </button>
-    </div>
-  )}
-</div>
+                <hr className="my-2" />
+                <p className="flex justify-between font-semibold">Tổng tiền<span>{total.toLocaleString('vi-VN')}đ</span></p>
+              </div>
+              <button className="w-full bg-black text-white py-2 mt-4 rounded" onClick={handleCheckout}>
+                Thanh toán
+              </button>
+            </div>
+          )}
+        </div>
 
       </main>
 
@@ -103,7 +108,6 @@ const CartPage = () => {
         onClose={() => setIsModalOpen(false)} // Đóng modal
         message="Vui lòng chọn ít nhất một sản phẩm trước khi thanh toán."
       />
-     
     </div>
   );
 };

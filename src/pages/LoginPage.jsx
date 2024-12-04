@@ -1,27 +1,39 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoginMutation } from '../apis/userApi';
-import { useDispatch } from 'react-redux';
-
 
 const LoginPage = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [errors, setErrors] = useState({});
     const [login, { isLoading, error }] = useLoginMutation();
 
+    const validateForm = () => {
+        const newErrors = {};
+        if (!username) {
+            newErrors.username = 'Tên người dùng không được để trống.';
+        }
+        if (!password) {
+            newErrors.password = 'Mật khẩu không được để trống.';
+        } 
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const loginHandle = async () => {
+        if (!validateForm()) return; // Kiểm tra lỗi trước khi gửi yêu cầu
+
         try {
             const result = await login({ username, password }).unwrap();
-            localStorage.setItem("token", result.data);
+            localStorage.setItem('token', result.data);
             navigate('/');
             window.location.reload();
-
         } catch (err) {
-            console.error("Login failed:", err);
+            console.error('Login failed:', err);
         }
     };
-    
+
     return (
         <section className="h-screen bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">
             <div className="max-w-5xl w-full p-10">
@@ -48,6 +60,9 @@ const LoginPage = () => {
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
                                     />
+                                    {errors.username && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+                                    )}
                                 </div>
 
                                 <div className="mb-4">
@@ -58,6 +73,9 @@ const LoginPage = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
+                                    {errors.password && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                                    )}
                                 </div>
 
                                 <div className="text-center mb-4">
@@ -73,29 +91,33 @@ const LoginPage = () => {
 
                                 {error && (
                                     <div className="text-red-500 text-center mb-4">
-                                        Login failed. Please check your credentials.
+                                        Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.
                                     </div>
                                 )}
 
                                 <div className="flex items-center justify-between">
-                                    <span>Don't have an account? <span
+                                    <span>Don't have an account?{' '}
+                                        <span
                                             onClick={() => navigate('/register')}
                                             className="text-blue-600 hover:underline cursor-pointer"
-                                        >Register</span>
+                                        >
+                                            Register
+                                        </span>
                                     </span>
                                     <span
                                         onClick={() => navigate('/forgot-password')}
                                         className="text-blue-600 hover:underline cursor-pointer"
-                                    >Forgot Password</span>
+                                    >
+                                        Forgot Password
+                                    </span>
                                 </div>
-
                             </form>
                         </div>
 
                         <div
                             className="hidden lg:flex items-center rounded-b-lg lg:w-6/12 lg:rounded-r-lg lg:rounded-bl-none"
                             style={{
-                                background: "linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)",
+                                background: 'linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)',
                             }}
                         >
                             <div className="px-4 py-6 text-white">
