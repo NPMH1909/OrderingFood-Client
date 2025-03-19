@@ -1,7 +1,8 @@
 // services/orderApi.js
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-const URL = 'http://localhost:5000/orders';
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+const URL = `${BASE_URL}/orders/`;
 export const orderApi = createApi({
     reducerPath: 'orderApi',
     baseQuery: fetchBaseQuery({
