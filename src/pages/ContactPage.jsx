@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useCreateContactMutation } from "../apis/contactApi";
 import { useGetUserByIdQuery } from "../apis/userApi"; // Hook API để lấy thông tin người dùng
-import ContactCard from "../components/contactCard";
+import ContactCard from "../components/contactCard.jsx";
 import "../css/pages/contactForm.css";
 import RestaurantMap from "../components/RestaurantMap";
 
